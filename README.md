@@ -355,5 +355,15 @@ This will merge local repo to the remote git repo
 (base) gs@GSs-MacBook-Pro gitdemo % git push -u origin main
 ```
 
+If we make any changes now to a file and commit, it will still be in local repo. To push those changes in remote git repo use:<br>
+git push -u origin main
+
+Following will set your local to remote/main; all the changes will then be committed to remote
+
+```bash
+git branch --set-upstream-to=origin/<branch> main
+```
+
+
    
 
