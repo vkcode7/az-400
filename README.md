@@ -1,0 +1,359 @@
+# github-demo
+A demo of github
+
+Git - this is a distrubuted system, installer available from git-scm.com for Mac, Linux and Windows.
+
+Default branch name for a git repo is 'master' (created using git init) but can be changed to others as 'main', 'trunk' etc.
+
+## First time adding a project to Git (or creating repo from blank)
+
+### Step 1:
+```bash
+git init
+Initialized empty Git repository in /Users/gs/Documents/azure/gitdemo/.git/
+```
+git init creates a local .git folder which acts as local DB where all the changes are tracked.
+
+- List global attributes<br>
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git config --global --list 
+user.name=V Kumar
+user.email=vkcode7@yahoo.com
+```
+
+Think there are 3 areas when working with git
+1) Local folder(s) where files are
+2) Staging area
+3) .git repository
+
+- Our test folder has 2 files - FileA.txt and FileB.txt<br>
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % ls -l
+total 16
+-rw-r--r--  1 gs  staff  14 Feb 28 16:28 FileA.txt
+-rw-r--r--  1 gs  staff  13 Feb 28 16:28 FileB.txt
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        FileA.txt
+        FileB.txt
+
+nothing added to commit but untracked files present (use "git add" to track)<br>
+```
+
+### Step 2: Use git add to add the files to staging area
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git add .
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+On branch master
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+        new file:   FileA.txt
+        new file:   FileB.txt
+```
+
+### Step 3: Next step is to move them from Staging Area to Git repo by using "git commit"
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git commit -m "initial commit"
+[master (root-commit) dd8d9ee] initial commit
+ 2 files changed, 2 insertions(+)
+ create mode 100644 FileA.txt
+ create mode 100644 FileB.txt
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+On branch master
+nothing to commit, working tree clean
+```
+
+## Making changes and commiting them
+Lets make a change in FileA.txt and go a git status<br><br>
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   FileA.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Next move it to Staging Area using "git add FileA.txt"
+
+Next commit them:
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git add FileA.txt
+(base) gs@GSs-MacBook-Pro gitdemo % git commit -m "Changes made to FileA.txt"
+[master 9f2f824] Changes made to FileA.txt
+ 1 file changed, 1 insertion(+)
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+On branch master
+nothing to commit, working tree clean
+```
+
+## Going back to previous version of a file
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git log
+commit 9f2f824a478cdd4b789cb9dad9d141ecd935aad8 (HEAD -> master)
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 17:09:46 2024 -0500
+
+    Changes made to FileA.txt
+
+commit dd8d9eee67195f93c57a1b9f3d9317fe2f200589
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 16:40:44 2024 -0500
+
+    initial commit
+(base) gs@GSs-MacBook-Pro gitdemo % git checkout dd8d9eee67195f93c57a1b9f3d9317fe2f200589
+Note: switching to 'dd8d9eee67195f93c57a1b9f3d9317fe2f200589'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at dd8d9ee initial commit
+(base) gs@GSs-MacBook-Pro gitdemo % git log
+commit dd8d9eee67195f93c57a1b9f3d9317fe2f200589 (HEAD)
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 16:40:44 2024 -0500
+
+    initial commit
+(base) gs@GSs-MacBook-Pro gitdemo % 
+```
+
+## Going back to most recent version
+If we want to go back to most recent version again after the checkout above using 'git log --all' to see all versions, and then use git checkout
+
+```base
+(base) gs@GSs-MacBook-Pro gitdemo % git log --all
+commit 9f2f824a478cdd4b789cb9dad9d141ecd935aad8 (master)
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 17:09:46 2024 -0500
+
+    Changes made to FileA.txt
+
+commit dd8d9eee67195f93c57a1b9f3d9317fe2f200589 (HEAD)
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 16:40:44 2024 -0500
+
+    initial commit
+(base) gs@GSs-MacBook-Pro gitdemo % git checkout 9f2f824a478cdd4b789cb9dad9d141ecd935aad8
+Previous HEAD position was dd8d9ee initial commit
+HEAD is now at 9f2f824 Changes made to FileA.txt
+(base) gs@GSs-MacBook-Pro gitdemo % git log
+commit 9f2f824a478cdd4b789cb9dad9d141ecd935aad8 (HEAD, master)
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 17:09:46 2024 -0500
+
+    Changes made to FileA.txt
+
+commit dd8d9eee67195f93c57a1b9f3d9317fe2f200589
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 16:40:44 2024 -0500
+
+    initial commit
+```
+
+## Unstage a change
+
+You make a change to file and run "git add ." to stage the changes, but now you want to unstage that.
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git add .
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+HEAD detached at 9f2f824
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   FileA.txt
+
+(base) gs@GSs-MacBook-Pro gitdemo % 
+```
+
+Here is how you unstage
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git restore --staged FileA.txt
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+HEAD detached at 9f2f824
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   FileA.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+(base) gs@GSs-MacBook-Pro gitdemo % git restore FileA.txt
+```
+
+You can also do the following to unstage
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git checkout master
+Switched to branch 'master'
+(base) gs@GSs-MacBook-Pro gitdemo % git branch
+* master
+(base) gs@GSs-MacBook-Pro gitdemo % git rm --cached FileA.txt
+rm 'FileA.txt'
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        deleted:    FileA.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        FileA.txt
+
+(base) gs@GSs-MacBook-Pro gitdemo % git add .
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+On branch master
+nothing to commit, working tree clean
+```
+
+## Working with branches
+
+The new features should be worked upon using a separate branch, not the main one. Once everything is developed and tested, only then it should be merged with main.
+
+### Creating a branch and commiting code
+Using -a option we can create and checkout the branch. All code is then copied to new branch:
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git checkout -b FeatureA
+Switched to a new branch 'FeatureA'
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+On branch FeatureA
+nothing to commit, working tree clean
+(base) gs@GSs-MacBook-Pro gitdemo % git log
+commit 9f2f824a478cdd4b789cb9dad9d141ecd935aad8 (HEAD -> FeatureA, master)
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 17:09:46 2024 -0500
+
+    Changes made to FileA.txt
+
+commit dd8d9eee67195f93c57a1b9f3d9317fe2f200589
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 16:40:44 2024 -0500
+
+    initial commit
+(base) gs@GSs-MacBook-Pro gitdemo % 
+```
+
+Lets create a new file FileC.txt, add to staging area and then commit
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git branch
+* FeatureA
+  master
+(base) gs@GSs-MacBook-Pro gitdemo % git add FileC.txt
+(base) gs@GSs-MacBook-Pro gitdemo % git commit -m "Added FileC"
+[FeatureA bd0f221] Added FileC
+ 1 file changed, 1 insertion(+)
+ create mode 100644 FileC.txt
+(base) gs@GSs-MacBook-Pro gitdemo % git log
+commit bd0f2217e8a699909e5a4d1b569a0401f060633f (HEAD -> FeatureA)
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 21:15:32 2024 -0500
+
+    Added FileC
+
+commit 9f2f824a478cdd4b789cb9dad9d141ecd935aad8 (master)
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 17:09:46 2024 -0500
+
+    Changes made to FileA.txt
+
+commit dd8d9eee67195f93c57a1b9f3d9317fe2f200589
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 16:40:44 2024 -0500
+
+    initial commit
+```
+
+if we do a git checkout on main branch, you will notice that FileC.txt will disappear as it is not in main. Doing a 'git chcekout FeatureA' will bring it back
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git checkout master
+Switched to branch 'master'
+
+(base) gs@GSs-MacBook-Pro gitdemo % ls -l
+total 16
+-rw-r--r--  1 gs  staff  36 Feb 28 21:03 FileA.txt
+-rw-r--r--  1 gs  staff  13 Feb 28 16:28 FileB.txt
+(base) gs@GSs-MacBook-Pro gitdemo % 
+```
+
+### Merging branches
+
+To merge FeatureA, first chcekout to main and then do a merge:
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git checkout master
+Switched to branch 'master'
+(base) gs@GSs-MacBook-Pro gitdemo % git merge FeatureA
+Updating 9f2f824..bd0f221
+Fast-forward
+ FileC.txt | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 FileC.txt
+```
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git log
+commit bd0f2217e8a699909e5a4d1b569a0401f060633f (HEAD -> master, FeatureA)
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 21:15:32 2024 -0500
+
+    Added FileC
+
+commit 9f2f824a478cdd4b789cb9dad9d141ecd935aad8
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 17:09:46 2024 -0500
+
+    Changes made to FileA.txt
+
+commit dd8d9eee67195f93c57a1b9f3d9317fe2f200589
+Author: V Kumar <vkcode7@yahoo.com>
+Date:   Wed Feb 28 16:40:44 2024 -0500
+
+    initial commit
+```
+
+## Remote repo
+So far we have been working with local repo,  but in real world devs works with remote repositories such as github or Azure Repos.
+
+So devs do the following:
+1. Clone the repo
+2. Make local changes
+3. Merge local changes back to remote repo
+
+## Push an existing repo that we created locally to remote git repo
+
+This will merge local repo to the remote git repo
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git remote add origin https://github.com/vkcode7/github-demo.git
+(base) gs@GSs-MacBook-Pro gitdemo % git push -u origin main
+```
+
+   
+
