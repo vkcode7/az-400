@@ -375,8 +375,7 @@ Note that a first time user will have to create a git repo locally using git ini
  
 Scenario: User1 and User2 are working on same branch (say main). User1 is working on FileA.txt and made changes to it, meanwhile User2 also made a change and pushes it to repo. Now when User1 tries to commit it, error message will show that User1 file is behind and he will have to do a pull. Ater pull he can either accept user2 changes or his own and then can commit again.
 
-Made this changes just for Testing FF merge 
-
+### Fast Forward merge
 If you create a feature branch and commit changes using fast forward, then changes committed by other users (on their code) wont be in your branch. So always do a pull before commit.
 
 However, lets say you do that in this order:
@@ -470,4 +469,64 @@ To resolve this, you need to do a "git pull" followed by "git push"
 | 
 |     Update README.md
 | 
+```
+
+### Another merge strategy
+- make a change in branchA to FileC.txt and commit
+- switch to main and make a change in FileA.txt and commit
+- merge branchA into main
+  
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git checkout branchA
+Switched to branch 'branchA'
+(base) gs@GSs-MacBook-Pro gitdemo % git commit -am "updated"
+[branchA fa33f22] updated
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+(base) gs@GSs-MacBook-Pro gitdemo % git checkout main
+Switched to branch 'main'
+Your branch is up to date with 'origin/main'.
+(base) gs@GSs-MacBook-Pro gitdemo % git commit -am "updated via main"
+[main dec0d49] updated via main
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+(base) gs@GSs-MacBook-Pro gitdemo % git merge branchA
+Merge made by the 'recursive' strategy.
+ FileC.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+(base) gs@GSs-MacBook-Pro gitdemo % git log --graph
+*   commit a31e045f574c2977717d5eea9553bf2712578e4c (HEAD -> main)
+|\  Merge: dec0d49 fa33f22
+| | Author: V Kumar <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 11:04:52 2024 -0500
+| | 
+| |     Merge branch 'branchA'
+| | 
+| * commit fa33f22b91d75bf7312d73833e0ce84a679f3c06 (branchA)
+| | Author: V Kumar <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 11:04:04 2024 -0500
+| | 
+| |     updated
+| | 
+* | commit dec0d495642dd0d4940dd4b729933d59ee88627b
+| | Author: V Kumar <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 11:04:44 2024 -0500
+| | 
+| |     updated via main
+| |   
+* |   commit 88e226cdd31d87396998dd66941a01b117c302b2 (origin/main)
+|\ \  Merge: 05a574f 02a037d
+| |/  Author: V Kumar <vkcode7@yahoo.com>
+|/|   Date:   Mon Mar 4 10:49:29 2024 -0500
+| |   
+| |       Merge branch 'main' of https://github.com/vkcode7/github-demo
+| | 
+| * commit 02a037dbd8ccdb17601fb37ac6d6d8b830e71e53
+| | Author: vkcode7 <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 10:41:32 2024 -0500
+| | 
+| |     Update README.md
+| |     
+| |     testing FF merge
+| | 
+| * commit 96b6365ac62ed3901c8b21f715a312a8bb30e0a8
+| | Author: vkcode7 <vkcode7@yahoo.com>
 ```
