@@ -375,5 +375,5 @@ Note that a first time user will have to create a git repo locally using git ini
  
 Scenario: User1 and User2 are working on same branch (say main). User1 is working on FileA.txt and made changes to it, meanwhile User2 also made a change and pushes it to repo. Now when User1 tries to commit it, error message will show that User1 file is behind and he will have to do a pull. Ater pull he can either accept user2 changes or his own and then can commit again.
 
-   
+Made this changes just for Testing FF merge 
 
