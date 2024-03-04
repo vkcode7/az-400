@@ -642,3 +642,36 @@ After commit, we should then do a pull first by creatin a pull request, after th
 ## Branch protection rule
 Git allows various rules to be enforced on a branch (usually main) such as a pull request before merge, approvals for merge etc. Read more about "creating a pull request" to know more.
 
+## Tagging
+Can be used to specify important commits. Can also be used to mark release points. 2 types are their - lightweight and annotated.<br>
+Leightweight tags are just a pointer to a specific commit.<br>
+Annotated are stored as full objects in git repo. These are checksummed, contains the tagger name, email, date and message. This is how you create annotated tag on current commit.
+git tag -a "v1.0" -m "this is version 1".<br>
+"git tag" will display all the tags
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git tag -a "v1.0" -m "this is version 1.0" 
+(base) gs@GSs-MacBook-Pro gitdemo % git log
+commit 3faaac464cbcf2b8d12fdc7b976ab14d6483be25 (HEAD -> main, tag: v1.0, origin/main)
+Author: vkcode7 <vkcode7@yahoo.com>
+Date:   Mon Mar 4 11:13:59 2024 -0500
+```
+
+"git show v1.0" will show details of the specific commit.
+
+## Git maintenance
+- git gc: kind of garbage collect, deletes non referenced objects
+- git prune: to prune loose object
+
+## Git LFS - Large File System
+For large files such as image or vids, you can use GIT but for that first install Git LFS using "git lfs install". Git then uses LFS system to store those files and pointers in git repo so you use them normally via git repo.
+
+## Good practices
+- Always maintain a high quality for main branch (keep prod code in that)
+- create branches for your features and bug fixes
+- use pull requests to merge your feature branch into main
+- keep your feature branches short lived and delete it after merge
+- you may need to merge first in release branch which is merged later to main
+
+
+
