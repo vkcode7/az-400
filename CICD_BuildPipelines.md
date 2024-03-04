@@ -21,7 +21,7 @@ Assuming we have webapp code in Azure Repos and there is a default branch set (m
 
 Here is how it looks like:
 
-trigger is master, when any change to master branch is made, the build will be triggered.
+trigger is master, when any change to master branch is made, the build will be triggered. In this it will use a MS VM by the name of windows-latest, it will copy the code there, build it and then destroy the VM. However, you can provide your own custom VM.
 
 ```yaml
 # ASP.NET Core (.NET Framework)
@@ -58,4 +58,8 @@ steps:
 click and "Save and Run", this will commit it to master branch and run it.
 
 It will then initialize the job, checkout webapp code, build the image where build will happen etc.
+
+Note: When you open the .yaml file, on right side you see the tasks, any of these can be added to the yaml using GUI interface.
+
+
 
