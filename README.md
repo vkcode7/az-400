@@ -668,6 +668,79 @@ Date:   Mon Mar 4 11:13:59 2024 -0500
 ## Git LFS - Large File System
 For large files such as image or vids, you can use GIT but for that first install Git LFS using "git lfs install". Git then uses LFS system to store those files and pointers in git repo so you use them normally via git repo.
 
+## Cherry Picking
+Suppose we have main branch master. We have FileB.txt in which we make 2 changes/commit via FeatureB branch.
+
+```bash
+(base) gs@GSs-MacBook-Pro azrepo % git branch
+* master
+(base) gs@GSs-MacBook-Pro azrepo % git checkout -b FeatureB
+Switched to a new branch 'FeatureB'
+(base) gs@GSs-MacBook-Pro azrepo % git commit -am "change 1"
+[FeatureB 486a171] change 1
+ 1 file changed, 1 insertion(+)
+(base) gs@GSs-MacBook-Pro azrepo % git commit -am "change 2"
+[FeatureB da51027] change 2
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+(base) gs@GSs-MacBook-Pro azrepo % git log --graph
+* commit da5102743317f5f56499c3f11de64a5b68c2d9a9 (HEAD -> FeatureB)
+| Author: V Kumar <vkcode7@yahoo.com>
+| Date:   Mon Mar 4 16:30:00 2024 -0500
+| 
+|     change 2
+| 
+* commit 486a17134031775a78c6b911ffb9144c8ec46fad
+| Author: V Kumar <vkcode7@yahoo.com>
+| Date:   Mon Mar 4 16:29:39 2024 -0500
+| 
+|     change 1
+| 
+* commit 74d45cb992b4d871dd6adae994bccfe6bbc1f8cc (origin/master, master)
+| Author: V Kumar <vkcode7@yahoo.com>
+| Date:   Mon Mar 4 12:59:40 2024 -0500
+| 
+|     another change
+| 
+* commit 9ad616c0b86ec716ee79345934342b26bd026fb2
+  Author: V Kumar <vkcode7@yahoo.com>
+  Date:   Mon Mar 4 12:53:19 2024 -0500
+  
+      initial commit
+```
+
+Now we have 2 changes in FileB.txt on FeatureB and these are not in main branch.
+
+Suppose we want only change 1 in main branch we can do that via cherry picking:
+
+```bash
+(base) gs@GSs-MacBook-Pro azrepo % git checkout master 
+Switched to branch 'master'
+Your branch is up to date with 'origin/master'.
+(base) gs@GSs-MacBook-Pro azrepo % git cherry-pick 486a17134031775a78c6b911ffb9144c8ec46fad
+[master cb576af] change 1
+ Date: Mon Mar 4 16:29:39 2024 -0500
+ 1 file changed, 1 insertion(+)
+
+(base) gs@GSs-MacBook-Pro azrepo % git log --graph
+* commit cb576af11953070edd93afd8ec48909300ed55f0 (HEAD -> master)
+| Author: V Kumar <vkcode7@yahoo.com>
+| Date:   Mon Mar 4 16:29:39 2024 -0500
+| 
+|     change 1
+| 
+* commit 74d45cb992b4d871dd6adae994bccfe6bbc1f8cc (origin/master)
+| Author: V Kumar <vkcode7@yahoo.com>
+| Date:   Mon Mar 4 12:59:40 2024 -0500
+| 
+|     another change
+| 
+* commit 9ad616c0b86ec716ee79345934342b26bd026fb2
+  Author: V Kumar <vkcode7@yahoo.com>
+  Date:   Mon Mar 4 12:53:19 2024 -0500
+  
+      initial commit
+```
+
 ## Good practices
 - Always maintain a high quality for main branch (keep prod code in that)
 - create branches for your features and bug fixes [git checkout -b branchA]
@@ -759,4 +832,16 @@ Under "Branch policies", one can enable "Check for linked work items". This forc
 
 ## .gitignore
 The .gitignore is a special type of file that can have file names or patterns of what not to track.
+
+## Azure Boards and GitHub
+One can install azure boards app by going to github market place (https://github.com/marketplace), search for Azure Boards and install there. You can then connect your Azure DevOps account to github.
+Then the github repo can be connected to azure boards so that tasks can be linked with github pull requests and vice versa, the pull request will be linked to task in az boards. So complete tracking can be implemented between github and az boards. 
+
+## Azure Repos and MS Teams/Slack
+Azure Repos can be integrated with MS Teams/Slacks. With that anytime something happens in repo (new story created/updated, pull request etc), you will get a notification in MS Teams/Slack. Refer more on microsoft website on how to integrate Azure Repos with Slack or MS Teams.
+
+
+
+
+
 
