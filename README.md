@@ -1,4 +1,4 @@
-# github-demo
+# github-demo/ azure repos
 A demo of github
 
 Git - this is a distrubuted system, installer available from git-scm.com for Mac, Linux and Windows.
