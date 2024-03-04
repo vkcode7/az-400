@@ -633,4 +633,11 @@ nothing to commit, working tree clean
 Suppose a dev is working on many branches and therefore have a detailed log history due to multiple commits (no push yet). Now when it will be merged in main, all those messages will be in the main too. Suppose we dont want all that history in logs after the merge, for that we can use a squash merge. So it helps reduce the commit messages in git log.<br>
 The command for squash merge is: git merge --squash branchA
 
+### GitHub merge
+On GitHub we can create a new branch, work on the changes and commit them. When we create a new branch, all the code from main gets copied over onto new branch.
+
+After commit, we should then do a pull first by creatin a pull request, after that we can perform "merge pull request". While merging you have option to select a normal merge, squash or a rebase merge.
+
+
+
 
