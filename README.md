@@ -638,6 +638,8 @@ On GitHub we can create a new branch, work on the changes and commit them. When 
 
 After commit, we should then do a pull first by creatin a pull request, after that we can perform "merge pull request". While merging you have option to select a normal merge, squash or a rebase merge.
 
+### git push -u origin -all
+It pushes all changes from all branches to remote repo.
 
 ## Branch protection rule
 Git allows various rules to be enforced on a branch (usually main) such as a pull request before merge, approvals for merge etc. Read more about "creating a pull request" to know more.
@@ -673,5 +675,67 @@ For large files such as image or vids, you can use GIT but for that first instal
 - keep your feature branches short lived and delete it after merge
 - you may need to merge first in release branch which is merged later to main
 
+## Azure Repos
 
+Goto Azure Repos under your Azure Project, from there generate credentials and copy the repo URL for use. Following shows how FileA.txt and FileB.txt were added to azure repo from local disk:
+
+```bash
+(base) gs@GSs-MacBook-Pro azrepo % git init
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint:   git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint:   git branch -m <name>
+Initialized empty Git repository in /Users/gs/Documents/azure/azrepo/.git/
+(base) gs@GSs-MacBook-Pro azrepo % git add .
+(base) gs@GSs-MacBook-Pro azrepo % git commit -m "initial commit"
+[master (root-commit) 9ad616c] initial commit
+ 2 files changed, 2 insertions(+)
+ create mode 100644 FileA.txt
+ create mode 100644 FileB.txt
+(base) gs@GSs-MacBook-Pro azrepo % git remote add origin https://vkcode7@dev.azure.com/vkcode7/AgileProject/_git/AgileProject
+(base) gs@GSs-MacBook-Pro azrepo % git push -u origin --all
+fatal: Authentication failed for 'https://dev.azure.com/vkcode7/AgileProject/_git/AgileProject/'
+(base) gs@GSs-MacBook-Pro azrepo % git push -u origin --all
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (4/4), 269 bytes | 269.00 KiB/s, done.
+Total 4 (delta 0), reused 0 (delta 0), pack-reused 0
+remote: Analyzing objects... (4/4) (3 ms)
+remote: Validating commits... (1/1) done (0 ms)
+remote: Storing packfile... done (89 ms)
+remote: Storing index... done (46 ms)
+To https://dev.azure.com/vkcode7/AgileProject/_git/AgileProject
+ * [new branch]      master -> master
+Branch 'master' set up to track remote branch 'master' from 'origin'.
+(base) gs@GSs-MacBook-Pro azrepo % 
+```
+
+We can make changes to file, commit and push to azure repo. Under Azure Repo -> Files, we can see the changes and history
+
+```bash
+(base) gs@GSs-MacBook-Pro azrepo % git commit -am "another change"
+[master 74d45cb] another change
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+(base) gs@GSs-MacBook-Pro azrepo % git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 295 bytes | 295.00 KiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+remote: Analyzing objects... (3/3) (3 ms)
+remote: Validating commits... (1/1) done (0 ms)
+remote: Storing packfile... done (53 ms)
+remote: Storing index... done (34 ms)
+To https://dev.azure.com/vkcode7/AgileProject/_git/AgileProject
+   9ad616c..74d45cb  master -> master
+```
 
