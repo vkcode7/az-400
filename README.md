@@ -639,5 +639,6 @@ On GitHub we can create a new branch, work on the changes and commit them. When 
 After commit, we should then do a pull first by creatin a pull request, after that we can perform "merge pull request". While merging you have option to select a normal merge, squash or a rebase merge.
 
 
-
+## Branch protection rule
+Git allows various rules to be enforced on a branch (usually main) such as a pull request before merge, approvals for merge etc. Read more about "creating a pull request" to know more.
 
