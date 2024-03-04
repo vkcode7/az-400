@@ -670,8 +670,12 @@ For large files such as image or vids, you can use GIT but for that first instal
 
 ## Good practices
 - Always maintain a high quality for main branch (keep prod code in that)
-- create branches for your features and bug fixes
-- use pull requests to merge your feature branch into main
+- create branches for your features and bug fixes [git checkout -b branchA]
+- commit the changes [git commit -am "message"]
+- use push to push the changes to remote git repo (git push -u origin branchA) [branchA on remote repo will be updated]
+- use pull requests to merge your feature branch into main [under branches, select branchA and then create a new pull request on web UI]
+- when pull requests is created, reviewers can be added to review it or you can click "complete pull request" and sleect the merge type (merge (no FF), squash, rebase), and complete the merge process
+- after the above merge process, the main will have changes from branchA (the branchA will be deleted if during merge process we select the option to delete it after merge)
 - keep your feature branches short lived and delete it after merge
 - you may need to merge first in release branch which is merged later to main
 
@@ -738,4 +742,16 @@ remote: Storing index... done (34 ms)
 To https://dev.azure.com/vkcode7/AgileProject/_git/AgileProject
    9ad616c..74d45cb  master -> master
 ```
+
+Note: 
+- the github repo can be imported in azure repo using github clone URL. Entire history will be imported too.
+- we can also setup branch policy in azure repo and force a review of pull requests.
+
+### Pull requests and merge process
+  - UserC create a new branch branchC, commit changes and create a pull request. The screen will show that atlease 1 reviewer must approve (forced via branch policy).<br>
+  - A reviewer logs in, go to Azure Repos -> Pull Requests. It shows Mine, Active, Completed, Abandoned tabs. Under Active, pull request for branchC will show up<br>
+  - Reviewer clicks on Approve dropdown button and can Approve, Approve with suggestions, Wait or Reject the pull request. Lets say he approved.
+  - UserC now go to Repos -> Pull requests, he will see that it has been approved. He can now select "Complete dropdown", select Complete or Abandon. Click on Complete and select "Complete" which will ask for merge type to use and select it branchC should be deleted after merge. Select and click on "Complete merge". That will complete the merge process.
+  
+  
 
