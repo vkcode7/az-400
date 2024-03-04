@@ -628,3 +628,9 @@ nothing to commit, working tree clean
 |/|   Date:   Mon Mar 4 11:04:44 2024 -0500
 | |   
 ```
+
+### Squash merge
+Suppose a dev is working on many branches and therefore have a detailed log history due to multiple commits (no push yet). Now when it will be merged in main, all those messages will be in the main too. Suppose we dont want all that history in logs after the merge, for that we can use a squash merge. So it helps reduce the commit messages in git log.<br>
+The command for squash merge is: git merge --squash branchA
+
+
