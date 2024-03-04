@@ -530,3 +530,101 @@ Merge made by the 'recursive' strategy.
 | * commit 96b6365ac62ed3901c8b21f715a312a8bb30e0a8
 | | Author: vkcode7 <vkcode7@yahoo.com>
 ```
+
+After the above I updated ReadMe.md on github and pushed it. The log then looks like below:
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git log --graph
+*   commit bbb71c7dac135842669c0d83442200259238207d (HEAD -> main)
+|\  Merge: a31e045 6b4da79
+| | Author: V Kumar <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 11:08:13 2024 -0500
+| | 
+| |     Merge branch 'main' of https://github.com/vkcode7/github-demo
+| | 
+| * commit 6b4da790a62b07d736814ef76f52062a4ad3610a (origin/main)
+| | Author: vkcode7 <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 11:08:05 2024 -0500
+| | 
+| |     Update README.md
+| | 
+| * commit d31c73bf75e563cf4d54a4ec34bbd441ee286737
+| | Author: vkcode7 <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 10:57:38 2024 -0500
+| | 
+| |     Update README.md
+| |   
+* |   commit a31e045f574c2977717d5eea9553bf2712578e4c
+|\ \  Merge: dec0d49 fa33f22
+| | | Author: V Kumar <vkcode7@yahoo.com>
+| | | Date:   Mon Mar 4 11:04:52 2024 -0500
+| | | 
+| | |     Merge branch 'branchA'
+| | | 
+| * | commit fa33f22b91d75bf7312d73833e0ce84a679f3c06 (branchA)
+| | | Author: V Kumar <vkcode7@yahoo.com>
+| | | Date:   Mon Mar 4 11:04:04 2024 -0500
+| | | 
+| | |     updated
+| | | 
+* | | commit dec0d495642dd0d4940dd4b729933d59ee88627b
+| |/  Author: V Kumar <vkcode7@yahoo.com>
+|/|   Date:   Mon Mar 4 11:04:44 2024 -0500
+| |   
+(base) gs@GSs-MacBook-Pro gitdemo % 
+```
+I will then have to do a "git pull" to bring ReadMe.md changes and then issue a "git push", to push my changes to remote main. The log will then looks like this:
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git push
+Enumerating objects: 19, done.
+Counting objects: 100% (15/15), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (9/9), done.
+Writing objects: 100% (10/10), 1.11 KiB | 1.11 MiB/s, done.
+Total 10 (delta 3), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (3/3), completed with 1 local object.
+To https://github.com/vkcode7/github-demo.git
+   6b4da79..bbb71c7  main -> main
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+(base) gs@GSs-MacBook-Pro gitdemo % git log --graph
+*   commit bbb71c7dac135842669c0d83442200259238207d (HEAD -> main, origin/main)
+|\  Merge: a31e045 6b4da79
+| | Author: V Kumar <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 11:08:13 2024 -0500
+| | 
+| |     Merge branch 'main' of https://github.com/vkcode7/github-demo
+| | 
+| * commit 6b4da790a62b07d736814ef76f52062a4ad3610a
+| | Author: vkcode7 <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 11:08:05 2024 -0500
+| | 
+| |     Update README.md
+| | 
+| * commit d31c73bf75e563cf4d54a4ec34bbd441ee286737
+| | Author: vkcode7 <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 10:57:38 2024 -0500
+| | 
+| |     Update README.md
+| |   
+* |   commit a31e045f574c2977717d5eea9553bf2712578e4c
+|\ \  Merge: dec0d49 fa33f22
+| | | Author: V Kumar <vkcode7@yahoo.com>
+| | | Date:   Mon Mar 4 11:04:52 2024 -0500
+| | | 
+| | |     Merge branch 'branchA'
+| | | 
+| * | commit fa33f22b91d75bf7312d73833e0ce84a679f3c06 (branchA)
+| | | Author: V Kumar <vkcode7@yahoo.com>
+| | | Date:   Mon Mar 4 11:04:04 2024 -0500
+| | | 
+| | |     updated
+| | | 
+* | | commit dec0d495642dd0d4940dd4b729933d59ee88627b
+| |/  Author: V Kumar <vkcode7@yahoo.com>
+|/|   Date:   Mon Mar 4 11:04:44 2024 -0500
+| |   
+```
