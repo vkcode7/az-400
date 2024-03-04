@@ -753,5 +753,6 @@ Note:
   - Reviewer clicks on Approve dropdown button and can Approve, Approve with suggestions, Wait or Reject the pull request. Lets say he approved.
   - UserC now go to Repos -> Pull requests, he will see that it has been approved. He can now select "Complete dropdown", select Complete or Abandon. Click on Complete and select "Complete" which will ask for merge type to use and select it branchC should be deleted after merge. Select and click on "Complete merge". That will complete the merge process.
   
-  
+### Linked work items
+Under "Branch policies", one can enable "Check for linked work items". This forces the pull request to be associated with Work Items (Tasks created for user stories on Azure Boards). You have to select the work items from drop down that are to be associated with the changes made in the pull requests.
 
