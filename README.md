@@ -377,3 +377,97 @@ Scenario: User1 and User2 are working on same branch (say main). User1 is workin
 
 Made this changes just for Testing FF merge 
 
+If you create a feature branch and commit changes using fast forward, then changes committed by other users (on their code) wont be in your branch. So always do a pull before commit.
+
+However, lets say you do that in this order:
+
+- create branchA: git checkout -b branchA
+- You make change to FileC.txt
+- Someone makes a change to ReadMe.md and commit/push in main
+- You commit yours changes: git commit -am "testing ff merge"
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git status
+On branch branchA
+nothing to commit, working tree clean
+(base) gs@GSs-MacBook-Pro gitdemo % git checkout main
+Switched to branch 'main'
+Your branch is up to date with 'origin/main'.
+(base) gs@GSs-MacBook-Pro gitdemo % git merge --ff-only branchA
+Updating 6bd689e..05a574f
+Fast-forward
+ FileC.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+(base) gs@GSs-MacBook-Pro gitdemo % git log --graph
+* commit 05a574f68dc4205daa1a766b35047086577a023d (HEAD -> main, branchA)
+| Author: V Kumar <vkcode7@yahoo.com>
+| Date:   Mon Mar 4 10:46:54 2024 -0500
+| 
+|     testing ff merge
+| 
+* commit 6bd689e65797f68ad3a9503772319e402fba667e (origin/main)
+| Author: vkcode7 <vkcode7@yahoo.com>
+| Date:   Thu Feb 29 22:33:30 2024 -0500
+| 
+|     Update README.md
+| 
+* commit 3b2e91bdb702702cce34fe52cae3a8dcaf2e1ede
+| Author: vkcode7 <vkcode7@yahoo.com>
+| Date:   Thu Feb 29 15:01:47 2024 -0500
+| 
+|     Update README.md
+| 
+* commit 1b99ffa32bb36587f98ab6f0fd12993b882a2eca
+| Author: vkcode7 <vkcode7@yahoo.com>
+```
+- As you see, ReadMe.md is now behind and git push will fail with following message
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git push
+To https://github.com/vkcode7/github-demo.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/vkcode7/github-demo.git'
+hint: Updates were rejected because the remote contains work that you do
+hint: not have locally. This is usually caused by another repository pushing
+hint: to the same ref. You may want to first integrate the remote changes
+hint: (e.g., 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+```bash
+
+To resolve this, you need to do a "git pull" followed by "git push"
+
+```bash
+(base) gs@GSs-MacBook-Pro gitdemo % git log --graph
+*   commit 88e226cdd31d87396998dd66941a01b117c302b2 (HEAD -> main, origin/main)
+|\  Merge: 05a574f 02a037d
+| | Author: V Kumar <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 10:49:29 2024 -0500
+| | 
+| |     Merge branch 'main' of https://github.com/vkcode7/github-demo
+| | 
+| * commit 02a037dbd8ccdb17601fb37ac6d6d8b830e71e53
+| | Author: vkcode7 <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 10:41:32 2024 -0500
+| | 
+| |     Update README.md
+| |     
+| |     testing FF merge
+| | 
+| * commit 96b6365ac62ed3901c8b21f715a312a8bb30e0a8
+| | Author: vkcode7 <vkcode7@yahoo.com>
+| | Date:   Mon Mar 4 10:35:18 2024 -0500
+| | 
+| |     Update README.md
+| | 
+* | commit 05a574f68dc4205daa1a766b35047086577a023d (branchA)
+|/  Author: V Kumar <vkcode7@yahoo.com>
+|   Date:   Mon Mar 4 10:46:54 2024 -0500
+|   
+|       testing ff merge
+| 
+* commit 6bd689e65797f68ad3a9503772319e402fba667e
+| Author: vkcode7 <vkcode7@yahoo.com>
+| Date:   Thu Feb 29 22:33:30 2024 -0500
+| 
+|     Update README.md
+| 
+```
