@@ -61,5 +61,7 @@ It will then initialize the job, checkout webapp code, build the image where bui
 
 Note: When you open the .yaml file, on right side you see the tasks, any of these can be added to the yaml using GUI interface.
 
-
-
+### Self hosted agents
+Benefits
+- persist the builds
+- have custom software installed
