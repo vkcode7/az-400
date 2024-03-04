@@ -233,7 +233,12 @@ nothing to commit, working tree clean
 
 ## Working with branches
 
-The new features should be worked upon using a separate branch, not the main one. Once everything is developed and tested, only then it should be merged with main.
+The new features should be worked upon using a separate branch, not the main one. Once everything is developed and tested, only then it should be merged with main.<br>
+quick tips:<br>
+- creating a branch: git checkout -b FeatureA
+- switching to a branch: git chcekout FeatureA
+- deleting a branch: git branch --delete FeatureA
+- listing branches: git branch
 
 ### Creating a branch and commiting code
 Using -a option we can create and checkout the branch. All code is then copied to new branch:
