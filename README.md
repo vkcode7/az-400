@@ -745,6 +745,7 @@ To https://dev.azure.com/vkcode7/AgileProject/_git/AgileProject
 
 Note: 
 - the github repo can be imported in azure repo using github clone URL. Entire history will be imported too.
+- we can also push a project to azure repo directly from visual studio for first time
 - we can also setup branch policy in azure repo and force a review of pull requests.
 
 ### Pull requests and merge process
@@ -755,4 +756,7 @@ Note:
   
 ### Linked work items
 Under "Branch policies", one can enable "Check for linked work items". This forces the pull request to be associated with Work Items (Tasks created for user stories on Azure Boards). You have to select the work items from drop down that are to be associated with the changes made in the pull requests.
+
+## .gitignore
+The .gitignore is a special type of file that can have file names or patterns of what not to track.
 
