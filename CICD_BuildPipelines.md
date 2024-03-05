@@ -65,3 +65,20 @@ Note: When you open the .yaml file, on right side you see the tasks, any of thes
 Benefits
 - persist the builds
 - have custom software installed
+
+#### How to create
+- Create a Windows 2019 VM, assuming that is your build box (lets say its name is agentvm)
+- Install .NET 6.0 SDK and Git on that (.NET 6.0 is webapp requirement)
+- Click on agentvm VM and then "Connect", that will download a RDP file
+- Click on that RDP file on a windows laptop, that will open the Remote Desktop and connect to agentvm
+- Once connected, open Edge and download .NET 6.0/GIT and install them
+
+- Next on agentvm, open dev.azure.com, from your user profile, create a PAT (personal access token), copy it in notepad
+- Click on Organization Settings -> Pipelines -> Agent Pools -> Default
+- Under that click "New Agent", select Windows x64 and "Download", extract the file in c:\vsts-agent....
+- Open PowerShell and CD to above folder
+- Run .\config.cmd on cmd prompt in PS, enter PAT token when asked, and c:\work as work folder. Create c:\work on agentvm too.
+- Enter Y for Run Agent as Service, also Y for enable SERVICE_SID_TYPE_xxx
+- Press Enter for subsequent questions.
+
+If you go back to Org Settings -> Pipelines -> Agent Pools -> Default -> Agents, you will see agentvm as "Online"
