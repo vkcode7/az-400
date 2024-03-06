@@ -126,10 +126,6 @@ steps:
     version: '6.x'
 - task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
-
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
