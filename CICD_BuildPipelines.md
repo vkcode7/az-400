@@ -91,6 +91,7 @@ pool:
 
 ```yaml
 pool:
-  vmImage: Default
+  name: agentpool
+  vmImage: agentvm
 ```
 Run the pipeline and it will use the agentvm.
