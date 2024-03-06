@@ -133,3 +133,6 @@ steps:
     projects: '**/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 ```
+
+For more details about build variables refer to YAML schema for azure pipelines on MSDN.
+https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml
