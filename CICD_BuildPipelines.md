@@ -83,7 +83,10 @@ Benefits
 
 If you go back to Org Settings -> Pipelines -> Agent Pools -> Default -> Agents, you will see agentvm as "Online"
 
-Go to AgileProject -> Pipelines -> Webapp and click "Edit" button on top right side. This will open the .yaml file. Change the vmImage under pool to Default.
+Go to AgileProject -> Pipelines -> Webapp and click "Edit" button on top right side. This will open the .yaml file. Change it as below.
+
+Note: In our case we created a new pool 'agentpool' instead of using 'Default'.
+
 ```yaml
 pool:
   vmImage: 'windows-latest'
