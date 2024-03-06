@@ -362,5 +362,42 @@ steps:
 You will then see a "Code Coverage" tab once the pipleline finishes. The objective is to see if your Unit Tests covers 100% of your code.
 
 
+## Azure Pipeline and GitHub
+
+Do a "New Pipeline", it will ask for repo type, select GitHub, it will ask for GitHub user/pwd and ask for the repo that you want to use to build pipeline. Will ask you to configure pipleline yaml, and then commit the yaml file. That will initiate a build. Only diff is that now code will be picked up from github instead of azure repo.
+
+### Adding status badge
+Click on "Status Badge" (click 3 vertival buttons next to "Run Pipeline" button of yout guthub pipeline), copy the sample markdown and copy it in the ReadMe.md on your github account. Once committed you will see Azure Pipelines status badge. The update to ReadMe will also trigger a build on azure.
+
+Also in Org Settings -> Settings, turn off "Disable anonymous access to badges". Also do the same in Project Settings -> Pipeline -> Settings. After this you can see the suucess status on github repp badge.
+
+One can also use PAT to connect to github. For that go to Settings -> Dev Settings -> PAT and generate a new token. Copy the token. Now go back to Azure, Project Settings -> Pipelines -> Service Connection, select GitHub and paste the token, give it any name and save.
+
+Here you can also select "Other Git" when creating a pipeline, which could be any git or github. Use your service connection to connect. In this one, yaml is not used, instead a GUI based page is used to configure your pipeline.
+
+## SonarCube and SonarCloud - Code quality tool.
+First step is to sign up on SonalCloud, open source projects are free. Can login using GitHub or Azure Devops. It will ask to chose the repos from them, import the org and create a free account. YOu can generate the security token there to use in Azure.
+
+Install the SonarCloud extension in Azure in order to use it.
+
+Now go to Project settings -> Service connection and add the token created on sonar website here. This will connect azure to sonar account.
+
+You can then edit the yaml pipeline file, by looking for SonarCloud on right and add entries for Prepare Analysis, Code Analysis and Publish. It will ask for org name from SonarCloud account and also the project key (has to be created on sonarcloud site by creating a project there).
+
+Once run, you can then see the report details (code issues etc) on SonarCloud site.
+
+## Parallel Jobs
+So far we ran 1 pipeline job at a time but in a large org, a pipeline can have multiple jobs that can run in parallel. To do that we have to buy license from Microsoft.
+Go to Org Settings -> Pipelines -> Parallel Jobs to see the details.
+
+## Pipeline Caching
+Instead of installing dependent packages (nugets etc) with each Job run, the pipeline can cache those and reuse them for subsequent job runs. This can be done using "Cache" task in yaml.
+
+## Integration with Slack and Teams
+Azure pipelines can be integrated with these, just like Azure boards.
+
+
+
+
 
 
