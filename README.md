@@ -840,8 +840,36 @@ Then the github repo can be connected to azure boards so that tasks can be linke
 ## Azure Repos and MS Teams/Slack
 Azure Repos can be integrated with MS Teams/Slacks. With that anytime something happens in repo (new story created/updated, pull request etc), you will get a notification in MS Teams/Slack. Refer more on microsoft website on how to integrate Azure Repos with Slack or MS Teams.
 
+## Checking/Disconnecting/Connecting remote origin
 
+Verify remote origin. This command will list the existing remote repositories associated with your local repository.
 
+```bash
+git remote -v
+```
 
+Remove the current remote origin:
+```bash
+git remote remove origin
+```
 
+Add a new remote origin:
+```bash
+git remote add origin <new_remote_url>
+```
+
+```bash
+git remote add origin https://vkcode7ad@dev.azure.com/vkcode7ad/BasicProject/_git/BasicProject
+git push -u origin --all
+```
+
+The above will push the code from /Users/gs/Documents/azure/webapp/webapp to azure repo.
+
+fatal: Authentication failed for 'https://dev.azure.com/vkcode7ad/BasicProject/_git/BasicProject/'
+I resolved it by running following command and then entering the password on prompt and hitting enter
+
+git credential approve <<< "protocol=https
+host=https://dev.azure.com/vkcode7ad
+username=vimalmalik
+password=PASSWORD_KEY_FROM_REPO"
 
