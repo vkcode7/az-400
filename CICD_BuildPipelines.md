@@ -136,3 +136,27 @@ steps:
 
 For more details about build variables refer to YAML schema for azure pipelines on MSDN.
 https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml
+
+## Mend Tool
+This is an open souce software security and compliance management tool. It integrates with Azure Devops set of tools in the pipelines and look for any software vulnerabilities or licensing issues (say in nuget packages from 3rd parties used in builds).
+
+To install tools such as Mend, go to Azure DevOps, Org Settings -> General -> Extensions -> Browse Marketplace and search for Mend or others as needed.
+
+This tool needs you to use MS Entra (aka Active Dir). This can be done in devops (https://dev.azure.com/vkcode7) by clicking on user in top right corner and switching to AD (Switch Directory). Select the Default Directory and click on Switch.
+
+The above step will create a brand new DevOps org (earlier vkcode7 was created using MS Account). The new one is named as vkcode7ad, it will also keep the existing one and we can switch between these.
+
+Only diff is that vkcode7ad is associated with AD (Entra now) account and vkcode7 with MS account.
+
+Click Org Settings -> Microsoft Entra to see that you are connected to AD.
+
+We can now go to Extensions, search Mend and install "Mend Bolt". Go back to Org Settings and you will see "Mend" under "Extensions" section. Click on Mend and fill the info.
+
+
+
+
+
+
+
+
+
