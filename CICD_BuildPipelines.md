@@ -152,6 +152,26 @@ Click Org Settings -> Microsoft Entra to see that you are connected to AD.
 
 We can now go to Extensions, search Mend and install "Mend Bolt". Go back to Org Settings and you will see "Mend" under "Extensions" section. Click on Mend and fill the info.
 
+### Using Mend Tool
+
+Create a basic project say BasicProject and from git add the webapp code to the BasicProject.
+
+Select the repo and click on "Set up Build". Choose ASP.NET Core. The yaml file will open, delete the VSTest2 task from that and add the Mend task by searching Mend on right side from assistant. Leave everything as is and click Add. This will add the following to yaml file:
+
+```yaml
+- task: WhiteSource@21
+  inputs:
+    cwd: '$(System.DefaultWorkingDirectory)'
+```
+
+Next do Save and Run, this will kick the job.
+
+Once job is complete and you go back to Pipelines, you will see extra tab "Mend Bolt". You can see the report there for Licensing risks and Securities vulnerability.
+
+All this new org vkcode7ad was created only for the demo of Mend tool. We will go back to our old org vkcode7 back.
+
+
+
 
 
 
