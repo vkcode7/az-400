@@ -179,7 +179,7 @@ Branch 'master' set up to track remote branch 'master' from 'origin'.
 (base) gs@GSs-MacBook-Pro webapp % git pull
 ```
 
-## Adding a Test Project to existing webapp project
+## Adding a Test Project to existing webapp project (webapps repo)
 Right click on webapp solution, Add New Project, search xUnit and add a "xUnit Test Project", name in webtest, select .NET 6.0. <br>
 Rename UnitTest1.cs to WebTest.cs. This is how the file looks like:
 ```code
@@ -200,8 +200,166 @@ public class WebTest
 ```
 Build it and run it from VS (View -> Tests). It passed.
 
+yaml looks like this:
+```yaml
+trigger:
+- master
 
+pool:
+#  name: agentpool
+  vmImage: 'ubuntu-latest'
 
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.x'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: '**/webtest.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: test
+    projects: '**/webtest.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+```
+
+Under Tests tab, we can see the test results.
+
+## Adding code coverage
+For this add a folder named Module in webapp project and under that add a class Functions as below:
+```code
+using webapp.Modules;
+
+namespace webtest;
+
+public class WebTest
+{
+    [Fact]
+    public void DemoTest()
+    {
+        int i = 1;
+        bool result = false;
+        if (i == 1)
+            result = true;
+        Assert.True(result, "value should be equal to 1");
+    }
+
+    [Fact]
+    public void CheckAddFunction()
+    {
+        Functions func = new Functions();
+        
+        int y = func.Add(3, 2);
+        bool result = false;
+        if (y == 5)
+            result = true;
+        Assert.True(result, "value should be equal to 5");
+    }
+}
+```
+
+Update WebTest.cs to
+
+```code
+using webapp.Modules;
+
+namespace webtest;
+
+public class WebTest
+{
+    [Fact]
+    public void DemoTest()
+    {
+        int i = 1;
+        bool result = false;
+        if (i == 1)
+            result = true;
+        Assert.True(result, "value should be equal to 1");
+    }
+
+    [Fact]
+    public void CheckAddFunction()
+    {
+        Functions func = new Functions();
+        
+        int y = func.Add(3, 2);
+        bool result = false;
+        if (y == 5)
+            result = true;
+        Assert.True(result, "value should be equal to 5");
+    }
+}
+```
+
+From NuGet PM, Add Coverlet.msbuild to webtest project.
+
+Here is the updated yaml
+
+```yaml
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: UseDotNet@2
+  displayName: Install .NET 6
+  inputs: 
+    packageType: 'sdk'
+    version: 6.x
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: test
+    projects: '**/webtest.csproj'
+    arguments: '/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./MyCoverage/'
+    publishTestResults: true
+
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish Code Coverage Results'
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(Build.SourcesDirectory)/**/MyCoverage/coverage.cobertura.xml'
+```
+
+You will then see a "Code Coverage" tab once the pipleline finishes. The objective is to see if your Unit Tests covers 100% of your code.
 
 
 
