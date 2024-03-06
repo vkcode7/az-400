@@ -170,9 +170,35 @@ Once job is complete and you go back to Pipelines, you will see extra tab "Mend 
 
 All this new org vkcode7ad was created only for the demo of Mend tool. We will go back to our old org vkcode7 back.
 
+## Reconnecting back to vkcode7 repo from vkcode7ad
+```bash
+(base) gs@GSs-MacBook-Pro webapp % git remote remove origin
+(base) gs@GSs-MacBook-Pro webapp % git remote add origin https://vkcode7@dev.azure.com/vkcode7/AgileProject/_git/webapp
+(base) gs@GSs-MacBook-Pro webapp % git branch --set-upstream-to=origin/master  master 
+Branch 'master' set up to track remote branch 'master' from 'origin'.
+(base) gs@GSs-MacBook-Pro webapp % git pull
+```
 
+## Adding a Test Project to existing webapp project
+Right click on webapp solution, Add New Project, search xUnit and add a "xUnit Test Project", name in webtest, select .NET 6.0. <br>
+Rename UnitTest1.cs to WebTest.cs. This is how the file looks like:
+```code
+namespace webtest;
 
-
+public class WebTest
+{
+    [Fact]
+    public void DemoTest()
+    {
+        int i = 1;
+        bool result = false;
+        if (i == 1)
+            result = true;
+        Assert.True(result, "value should be equal to 1");
+    }
+}
+```
+Build it and run it from VS (View -> Tests). It passed.
 
 
 
