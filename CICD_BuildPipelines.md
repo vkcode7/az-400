@@ -396,8 +396,9 @@ Instead of installing dependent packages (nugets etc) with each Job run, the pip
 ## Integration with Slack and Teams
 Azure pipelines can be integrated with these, just like Azure boards.
 
+## Github Actions
+Integrating github with Azure pipelines. This is done by creating a yaml file in the .github folder -> workflows (the .github will be sibling of project folder), adding an azure pipeline name into that file, azure project URL, a PAT created on azure devops so github can connect to pipeline. The PAT is not directly stored in yaml but you can go to github settings and there you can create a Secret token and save it there (GitHub -> Project Settings -> Security -> Secrets -> Action). The secret token name can then go to the yaml file.
 
 
-
-
+## Jenkins - CI tool
 
