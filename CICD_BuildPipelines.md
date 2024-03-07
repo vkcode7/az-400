@@ -401,6 +401,8 @@ Integrating github with Azure pipelines. This is done by creating a yaml file in
 
 
 ## Jenkins - CI tool
+
+### Jenkins installation on a ubuntu linux server
 For using Jenkins, we need to install it on a VM first.
 
 Lets create an "Ubuntu Server 20.04 LTS" vm. Name it jenkinsvm. Select Auth type as Password with user as linuxusr/G...ru...m123!<br>
@@ -424,6 +426,7 @@ Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.15.0-1057-azure x86_64)
 Here are the jenkins installation commands that we need to run on the linux vm
 
 ```bash
+# commands from DevOps course material
 sudo apt-get install openjdk-11-jdk-headless
 wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
 sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
@@ -434,6 +437,63 @@ sudo systemctl start jenkins
 sudo systemctl status jenkins
 sudo -s
 ```
+
+```bash
+# Steps to install from jenkins from chatgpt that we ran
+sudo apt update #ensure package index is up to date
+sudo apt install default-jdk #install jdk
+wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -   #Add Jenkins Repository Key
+sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'  #Add Jenkins Repository
+sudo apt update #update package index
+sudo apt install jenkins #install jenkins
+```
+
+The jenkins install was failing so ran these too
+```bash
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt-get update
+
+sudo apt-get install jenkins
+```
+
+we need to open port on jenkinsvm, head to azure -> vm -> Networking and create an inbound port security rule for port 8080. Just leave everything as is and hit "Add".<br>
+Head back to terminal and continue with jenkins installation
+
+```bash
+sudo ufw allow 8080 #create firewall rule at linkux level to allow traffic on 8080
+sudo systemctl start jenkins # start jenkins instance
+sudo systemctl status jenkins # check status of jenkins
+```
+
+With this Jenkins is now running, go to a web browser and type => http://52.168.83.77:8080/<br>
+This will open a page that prompts to unlock jenkins by entering pwd which is at: /var/lib/jenkins/secrets/initialAdminPassword on linux vm.
+
+Head back to terminal
+
+```bash
+root@jenkinsvm:/home/linuxusr# sudo -s
+root@jenkinsvm:/home/linuxusr# cd /var/lib/jenkins/secrets
+root@jenkinsvm:/var/lib/jenkins/secrets# more initialAdminPassword
+9561bfbd8c054eb5b37dd9e874bbaaee
+root@jenkinsvm:/var/lib/jenkins/secrets#
+```
+
+9561bfbd8c054eb5b37dd9e874bbaaee is the password. use it to unlock on the webpage and click on "Install selected plugin" on webpage.<br>
+
+It then asks to create Admin user. Created user jenkinsadmin with pwd jenkins. Finish and start using Jenkins.
+
+### jenkins - creating a build pipeline
+
+
+
+
+
+
 
 
 
