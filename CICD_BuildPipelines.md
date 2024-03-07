@@ -401,4 +401,42 @@ Integrating github with Azure pipelines. This is done by creating a yaml file in
 
 
 ## Jenkins - CI tool
+For using Jenkins, we need to install it on a VM first.
+
+Lets create an "Ubuntu Server 20.04 LTS" vm. Name it jenkinsvm. Select Auth type as Password with user as linuxusr/G...ru...m123!<br>
+Virtual network is devops-grp-vnet (newly created), public ip name is jenkinsvm-ip. Create the VM.
+
+After it is created and launched, note down the IP Address. we need it to connect to this VM and install jenkins tool.<br>
+Go to putty.org and download the PuTTY tool, we need it to connect to linuxvm on Windows. On Mac we can simply use Terminal windows to connect to our jenkinsvm using ssh linuxusr@52.168.83.77
+
+```bash
+Last login: Fri Mar  1 12:29:25 on ttys006
+(base) gs@GSs-MacBook-Pro webapp % ssh linuxusr@52.168.83.77
+The authenticity of host '52.168.83.77 (52.168.83.77)' can't be established.
+ED25519 key fingerprint is SHA256:5sGbzCyqD1gMz1tv8115qIMr+yJT18g+bYCuunXA2CQ.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '52.168.83.77' (ED25519) to the list of known hosts.
+linuxusr@52.168.83.77's password: 
+Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.15.0-1057-azure x86_64)
+```
+
+Here are the jenkins installation commands that we need to run on the linux vm
+
+```bash
+sudo apt-get install openjdk-11-jdk-headless
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt update
+sudo apt install jenkins
+sudo ufw allow 8080
+sudo systemctl start jenkins
+sudo systemctl status jenkins
+sudo -s
+```
+
+
+
+
+
 
