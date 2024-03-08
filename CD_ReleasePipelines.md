@@ -84,8 +84,23 @@ Scenario 1: (Task queries)  Move from one stage to another if there are no open 
 In this case, we can select "Query work items" in gates, and select the shared query. Configure other options such as continuously evaluate the condition every 2 hours etc. Save and exit.
 Note: Go to shared queries -> Security, and give permission to build service.
 
-Scenario 2: (Monitor alerts) In azure you can create an alert on a resource, say Memory threshold alert on webapp and name it say "webapp memory alert". You can then select this alert and create a condition that if alert is fired then dont move to the next stage. Example: you dont want to deploy to staging if web app is exceeding memory limits in test env.
+Scenario 2: (Monitor alerts) In azure you can create an alert on a resource, say Memory threshold alert on webapp and name it say "webapp memory alert". You can then select this alert and create a condition that if alert is fired then dont move to the next stage. Example: you dont want to deploy to staging if web app is exceeding memory limits in test env. One can manually intervene though to pass thru the gate.
 
+Scenario 3: (Policy) You created a policy in azure and non compliance is detected, you can create a gate where deployment will check policy compliance before moving to next stage.
+
+## Agentless task
+To your build pipeline you can also add an "Agentless job" so that a manual intervention is needed before deployment steps by Agent are triggered. So a user has to manually "Resume" the deployment after it is triggered.
+
+## Deployment Groups - deploying on Multiple VMs at same time
+One may need to deploy on multiple VMs that are part of test env.<br>
+Steps<br>
+- create 2 Wondows 2019 Server VMs in same resource group and network, install .NET 6 on them
+- Click on Piplelines -> Deployment groups and create one
+- It will display a PS scrips, run it on the newly created Server VMs.
+- Now under target tab, you will see both the machines listed
+
+You can then create a release pipeline wherein add agent as Deployment group type. Make some selections such as IIS server to deploy on etc.<br>
+Once deploy is complete, we can use the IP address of the 2 machines to run the site.
 
 
 
