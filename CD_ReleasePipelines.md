@@ -58,5 +58,39 @@ This will let you create release pipeline using classic GUI based version. yaml 
 
 How it works? Once a change is committed, it will create a build and that will trigger the release pipeline created above. However, we can also click "Create Release" to do it at will.
 
-Lets try that and the deployment failed. Click on Logs to see the error. It failed as zipped artifacts are not available.
+Lets try that and the deployment failed. Click on Logs to see the error. It failed as webapp202020 wasnt available. I had to head back to Azure WebApp202020 resouce, click on Deployment -> Deployment Center and enable Azure Repos there.
+
+## Multiple Stages in a pipeline
+Create another webapp resource with name webappstaging2020
+
+- go back to DevOps and Edit your release pipeline created in previous step
+- Hover on to Deploy to Test... stage and click Add button underneath to add another stage
+- Click Empty Job, change name to "Deploy to Staging env", Save and OK
+- Follow steps as earlier to add new staging env
+
+Lets make a change in index page to trigger build and deploy.
+
+## Approval and Gates
+In real world, there are time gaps between stages and only after one stage is tested we move to next. Approvals and gates are for that purpose of user signoffs/approvals. Gates are for automated approach of same. Gates can chcek if all the bugs logged in previous stage have been closed before deployment to next stage (kind of pre deployment gate). Similarly there could be post deployment gates.
+
+### Approvals
+Edit the pipeline and click on "Pre-deployment condition" figure. Available triggers are "After release", "After stage", "manual only".<br>
+Add an approver too (vkcode7@gmail.com) in this case, lets make a change to homepage to trigger the release.<br>
+The deployment now will wait for the approver to login into devops accopunt, go to release pipeline and "Approve/reject". Once approved, deployment will commence.
+
+### Gates
+Via gates, one can have various checks - Azure policy compliance chcek, invoke azure functions, REST API, query alerts, query work items, add sonarcloud quality chcek etc.<br>
+Scenario 1: (Task queries)  Move from one stage to another if there are no open tasks in Azure Boards for the project. For this create a query that retursn tasks that are not in "Closed" state and save it as shared query. <br>
+In this case, we can select "Query work items" in gates, and select the shared query. Configure other options such as continuously evaluate the condition every 2 hours etc. Save and exit.
+Note: Go to shared queries -> Security, and give permission to build service.
+
+Scenario 2: (Monitor alerts) In azure you can create an alert on a resource, say Memory threshold alert on webapp and name it say "webapp memory alert". You can then select this alert and create a condition that if alert is fired then dont move to the next stage. Example: you dont want to deploy to staging if web app is exceeding memory limits in test env.
+
+
+
+
+
+
+
+
 
