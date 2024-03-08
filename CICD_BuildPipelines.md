@@ -655,3 +655,25 @@ Time Elapsed 00:00:05.61
 Finished: SUCCESS
 ```
 
+### Ensuring a commit in Az Repo should trigger a build in Jenkins which is an external tool
+
+- In Azure DevOps, go to Project Settings -> Service Hooks
+- Click Create Subscription, Select Jenkins, click Next, select "Code Pushed" as trigger
+- Select Repository as webapp and branch as master (these defaults to Any). Click Next
+- In this screen, select action as "Triggers generic build"
+- provide "http://52.168.83.77:8080/" as base URL
+- On Jenkins dashboard, click username "jenkinsadmin" and click Configure
+- Under API Token, click Add Token, give "azuredevops" as token name, and copy the token key
+- Paste the toekn key in azure
+- Select project as "ProjectB" and Finish.
+
+  We now have a service hook in place, go to code on azure repo and make a change in index page. This should trigger a build.<br>
+  Go to Jenkins Dashboard, click ProjectB and you will see a new build happening there.
+
+  
+
+
+
+
+
+
