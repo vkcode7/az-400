@@ -1,4 +1,4 @@
-## Continuous Integration - Build Pipelines
+## Continuous Integration - Build Pipelines (Release management is CD, cont delivery)
 CI is automatic building and testing code everytime someone commits code changes
 
 concept behind CI: code is committed -> built -> tested
