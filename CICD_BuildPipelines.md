@@ -491,8 +491,7 @@ It then asks to create Admin user. Created user jenkinsadmin with pwd jenkins. F
 
 Jenkins is a CICD tool but on the same machine we have to install other tools needed for build such as .NET Core.
 
-
-#### Create a locak webapp and push it to github
+#### Create a locak webapp and push it to github, this is to be used with Jenkins
 Created a webapp project locally using local git
 added and committed the files locally
 ```bash
@@ -508,6 +507,24 @@ git merge --allow-unrelated-histories origin/main
 git push origin master:main
 ```
 
+### Installing build tools on jenkinsvm (.NET 6.0 SDK  and git)
+
+```bash
+ssh linuxusr@52.168.83.77
+sudo apt update
+sudo apt install git
+git --version
+
+wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+
+sudo apt update
+sudo apt install -y apt-transport-https
+sudo apt update
+sudo apt install -y dotnet-sdk-6.0
+
+dotnet --version
+```
 
 
 
