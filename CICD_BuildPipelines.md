@@ -604,6 +604,54 @@ Time Elapsed 00:00:05.37
 Finished: SUCCESS
 ```
 
+### Jenkins and Azure Repos
 
+- New Item -> Project B, Freestyle Project -> OK
+- In source code management choose Git and paste the azure repo URL: https://dev.azure.com/vkcode7/AgileProject/_git/webapp
+- Click Add for credentials
+- Go to azure webapp repo, click on Clone button and click Git Credentials. It will show a username and pwd. Copy those and paste on jenkins page
+- Verify the branch (master in my case on azure repo so leave as is)
+- Scroll below and in Build -> Add build step, select "Execute Shell"
+- In the test area enter "dotnet build *.sln" and click on "Save"
+- Click on "Build Now" on left side to build this particular pipeline.
 
+Once it is build, check the status, success in our case
+
+```console
+Started by user jenkinsvm
+Running as SYSTEM
+Building in workspace /var/lib/jenkins/workspace/ProjectB
+The recommended git tool is: NONE
+using credential 76bf3759-b467-4496-ab7d-bdf0472060e9
+Cloning the remote Git repository
+Cloning repository https://dev.azure.com/vkcode7/AgileProject/_git/webapp
+ > git init /var/lib/jenkins/workspace/ProjectB # timeout=10
+Fetching upstream changes from https://dev.azure.com/vkcode7/AgileProject/_git/webapp
+ > git --version # timeout=10
+ > git --version # 'git version 2.25.1'
+using GIT_ASKPASS to set credentials 
+ > git fetch --tags --force --progress -- https://dev.azure.com/vkcode7/AgileProject/_git/webapp +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://dev.azure.com/vkcode7/AgileProject/_git/webapp # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+Checking out Revision e20a5329d50d51b857670d50cdfa7cdbf05df18f (refs/remotes/origin/master)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f e20a5329d50d51b857670d50cdfa7cdbf05df18f # timeout=10
+Commit message: "Updated azure-pipelines-1.yml"
+First time build. Skipping changelog.
+[ProjectB] $ /bin/sh -xe /tmp/jenkins11088668136630081497.sh
++ dotnet build webapp.sln
+MSBuild version 17.3.2+561848881 for .NET
+  Determining projects to restore...
+  Restored /var/lib/jenkins/workspace/ProjectB/webapp.csproj (in 98 ms).
+  webapp -> /var/lib/jenkins/workspace/ProjectB/bin/Debug/net6.0/webapp.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.61
+Finished: SUCCESS
+```
 
