@@ -526,5 +526,84 @@ sudo apt install -y dotnet-sdk-6.0
 dotnet --version
 ```
 
+### Few m ore steps are required before Jenkins can be used
+```bash
+
+sudo systemctl stop jenkins
+sudo systemctl start jenkins
+
+sudo chmod -R a+rwx /var/lib/jenkins
+sudo chmod -R a+rwx /tmp/NuGetScratch
+```
+
+### Creating a Jenkins Pipeline
+Go to http://52.168.83.77:8080/ dahboard, click "New Item" to create a new item, name it as "ProjectA", select Freestyle project and hit OK.<br>
+On next screen, in Source Code management, select Git. Enter repo URL "https://github.com/vkcode7/webapp.git"<br>
+Add git username/pwd for authentication. Change branch to "main". Scroll below and in Build -> Add build step, select "Execute Shell".<br>
+In the test area enter "dotnet build *.sln" and click on "Save".<br>
+Click on "Build Now" on left side to build this particular pipeline.
+
+This resulted in a SUCCESS build with following console output
+```console
+Started by user jenkinsvm
+Running as SYSTEM
+Building in workspace /var/lib/jenkins/workspace/ProjectA
+The recommended git tool is: NONE
+using credential 922f108b-0152-44a5-8649-fdec7ed9627c
+Cloning the remote Git repository
+Cloning repository https://github.com/vkcode7/webapp.git
+ > git init /var/lib/jenkins/workspace/ProjectA # timeout=10
+Fetching upstream changes from https://github.com/vkcode7/webapp.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.25.1'
+using GIT_ASKPASS to set credentials 
+ > git fetch --tags --force --progress -- https://github.com/vkcode7/webapp.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/vkcode7/webapp.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 915df39df7974943c8170b0d03f6b5b1186bc862 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 915df39df7974943c8170b0d03f6b5b1186bc862 # timeout=10
+Commit message: "Update README.md"
+First time build. Skipping changelog.
+[ProjectA] $ /bin/sh -xe /tmp/jenkins13827282958153076643.sh
++ dotnet build webapp.sln
+
+Welcome to .NET 6.0!
+---------------------
+SDK Version: 6.0.419
+
+Telemetry
+---------
+The .NET tools collect usage data in order to help us improve your experience. It is collected by Microsoft and shared with the community. You can opt-out of telemetry by setting the DOTNET_CLI_TELEMETRY_OPTOUT environment variable to '1' or 'true' using your favorite shell.
+
+Read more about .NET CLI Tools telemetry: https://aka.ms/dotnet-cli-telemetry
+
+----------------
+Installed an ASP.NET Core HTTPS development certificate.
+To trust the certificate run 'dotnet dev-certs https --trust' (Windows and macOS only).
+Learn about HTTPS: https://aka.ms/dotnet-https
+----------------
+Write your first app: https://aka.ms/dotnet-hello-world
+Find out what's new: https://aka.ms/dotnet-whats-new
+Explore documentation: https://aka.ms/dotnet-docs
+Report issues and find source on GitHub: https://github.com/dotnet/core
+Use 'dotnet --help' to see available commands or visit: https://aka.ms/dotnet-cli
+--------------------------------------------------------------------------------------
+MSBuild version 17.3.2+561848881 for .NET
+  Determining projects to restore...
+  Restored /var/lib/jenkins/workspace/ProjectA/webapp/webapp.csproj (in 95 ms).
+  webapp -> /var/lib/jenkins/workspace/ProjectA/webapp/bin/Debug/net6.0/webapp.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.37
+Finished: SUCCESS
+```
+
+
 
 
