@@ -122,9 +122,20 @@ If you click on your release pipeline -> Edit -> Options, there you can integrat
 
 ## Creating a Docker image (Linux)
 - Create a linux VM on azure (Ubuntu 20.04 server)
-- 
+- Install docker engine via https://docs.docker.com/engine/install/ubuntu/
+- Copy webapp publish folder to Linux VM using SFTP tool such as WinSCM
+- Create a Docker file named "Dockerfile". Here is how it looks like:
+                FROM mcr.microsoft.com/dotnet/aspnet:6.0
+                WORKDIR /app
+                COPY  . .
+                EXPOSE 80
+                ENTRYPOINT ["dotnet", "sqlapp.dll"]
 
-
+- this file tells Docker about how to contruct a docker image that uses .NET
+- FROM instruction tells that base image should be baed on .NET 6.0, create a workdir "/app" and copy all the contents (webapp files), expose port 80 and run webapp.dll
+- copy the Dockerfile to Publish folder on linux vm and run the following to build docker image based on Dockerfile: sudo docker build -t webappimage .
+- "sudo docker images" will show the newly created image
+- The image is then needs to be published to a registry so that we can pull that image and run the container.
 
 
 
