@@ -61,7 +61,10 @@ How it works? Once a change is committed, it will create a build and that will t
 Lets try that and the deployment failed. Click on Logs to see the error. It failed as webapp202020 wasnt available. I had to head back to Azure WebApp202020 resouce, click on Deployment -> Deployment Center and enable Azure Repos there.
 
 ## Multiple Stages in a pipeline
-Create another webapp resource with name webappstaging2020
+- Create another webapp resource with name webappstaging2020
+- Connect to linux vm from Mac Terminal: ssh linuxusr@ipaddress
+- 
+
 
 - go back to DevOps and Edit your release pipeline created in previous step
 - Hover on to Deploy to Test... stage and click Add button underneath to add another stage
@@ -102,6 +105,24 @@ Steps<br>
 You can then create a release pipeline wherein add agent as Deployment group type. Make some selections such as IIS server to deploy on etc.<br>
 Once deploy is complete, we can use the IP address of the 2 machines to run the site.
 
+
+## Deploying a web app along with data in Azure SQL database
+- Create a SQL database resource in Azure
+- Now as in previous steps after we add an Agent Job wherein we search "Azure Web App" and click Add.
+- We add another task where in search SQL and add "Add Azure SQL database deployment".
+- In the screen that follows we can provide SQL server details and add the script that we want to run on the DB.
+- So now in addition to deploying web app, the pipeline will also execute teh SQL script.
+
+Note: Instead of embedding SQL connection details in the c# webapp code, we can create a connection string in azure web app itself(webapp -> Configuration -> App Settings) to store Az SQL Server connection info.
+
+You can also add Azure App Settings in agent job as well and define app settings level stuff there too such as Connection strings.
+
+## Integration with Azure Boards
+If you click on your release pipeline -> Edit -> Options, there you can integrate it with azure boards/Jira/repository etc. How it works is that when you commit the change, you specify work item along with commit. So when deployment is complete you will see the link of that in particular work item. That way you have end to end traceability.
+
+## Creating a Docker image (Linux)
+- Create a linux VM on azure (Ubuntu 20.04 server)
+- 
 
 
 
