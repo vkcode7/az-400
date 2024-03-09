@@ -174,7 +174,12 @@ With that container instance will be in place, you can copy the IP and access th
 - It will then show you generated pipeline yaml file
 - The yaml file wont create the correct image and need some tweaks (it uses code to build image instead of Publish artifacts)
 - Edit the yaml file, and commit it
+- The "pwsh" command is to see the build outputs (for easier debugging) on the MS VM (this is not a self hosted where we can browse and see)
+- The above will create a List Content task that we can see in Build outputs
+- I was running into issue and have to fix the path in yaml for task Docker@2 => buildContext: '$(Build.ArtifactStagingDirectory)/s'
+- Per List Content, output was in Directory: /home/vsts/work/1/a/s
 - Commit will trigger the build and deploy the image in CR
+- You can see it in localregistry2020 | Repositories | webappdocker
 - You can then test it by creating a container instance using that image
 
 
