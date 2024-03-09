@@ -164,8 +164,18 @@ Once published you can see the image under Repositories in azure under your cont
 Once published we can create a resource "Container instances" type and select our localregistry2020, select the container webappimage and "Create".<br>
 With that container instance will be in place, you can copy the IP and access the web app from internet.
 
-## Implementing the previous steps via Azure Pipeline itself
-
+## Implementing the previous steps via Azure Pipeline itself - build a docker image and push it to containeer registry (CR)
+- Create a copy of webapp code and create a new azure repo webapp-docker with it
+- Delete the yaml pipeline file(s)
+- Create a Dockerfile and copy it where source code is (where csproj is).
+- Click on "Setup Build", in the configure step it will show you Docker/Kubernetes options because it detects Dockerfile in source
+- Select "Docker - Build and push an image to Azure Container Registry"
+- It will ask subscription ddetails and ask you to select container registry created previously
+- It will then show you generated pipeline yaml file
+- The yaml file wont create the correct image and need some tweaks (it uses code to build image instead of Publish artifacts)
+- Edit the yaml file, and commit it
+- Commit will trigger the build and deploy the image in CR
+- You can then test it by creating a container instance using that image
 
 
 
