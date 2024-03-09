@@ -181,7 +181,9 @@ With that container instance will be in place, you can copy the IP and access th
 - Commit will trigger the build and deploy the image in CR
 - You can see it in localregistry2020 | Repositories | webappdocker
 - You can then test it by creating a container instance using that image webappdocker and opening the page in browser
-- 
+
+## Using Release pipeline to launch Az Container instances
+In previous step we created a docker image and uploaded to container registry.
 
 
 
