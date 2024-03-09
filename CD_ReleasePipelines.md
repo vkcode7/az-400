@@ -149,14 +149,25 @@ Here are the steps involved:<br>
 1. Install the Azure CLI via the following URL<br>
 https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt
 
-2. First log into the Azure container registry from CLI<br>
-sudo az acr login --name localregistry2020 --username localregistry2020 --password
+2. First log into the Azure container registry from CLI. Under localregistry2020 -> Access Keys, we can get the password<br>
+sudo az acr login --name localregistry2020 --username localregistry2020 --password ahXW2jdkwiqgj1WST3oB2/f0SWzhLNi/xntmfM3aZY+ACRBYs0gU
 
 3. Then tag your image<br>
 sudo docker tag webappimage localregistry2020.azurecr.io/webappimage
 
 4. Then push the image to the Azure Container registry<br>
 sudo docker push localregistry2020.azurecr.io/webappimage
+
+Once published you can see the image under Repositories in azure under your container registry.
+
+### Creating container instance
+Once published we can create a resource "Container instances" type and select our localregistry2020, select the container webappimage and "Create".<br>
+With that container instance will be in place, you can copy the IP and access the web app from internet.
+
+## Implementing the previous steps via Azure Pipeline itself
+
+
+
 
 
 
