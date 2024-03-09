@@ -129,13 +129,38 @@ If you click on your release pipeline -> Edit -> Options, there you can integrat
                 WORKDIR /app
                 COPY  . .
                 EXPOSE 80
-                ENTRYPOINT ["dotnet", "sqlapp.dll"]
+                ENTRYPOINT ["dotnet", "webapp.dll"]
 
 - this file tells Docker about how to contruct a docker image that uses .NET
 - FROM instruction tells that base image should be baed on .NET 6.0, create a workdir "/app" and copy all the contents (webapp files), expose port 80 and run webapp.dll
 - copy the Dockerfile to Publish folder on linux vm and run the following to build docker image based on Dockerfile: sudo docker build -t webappimage .
 - "sudo docker images" will show the newly created image
 - The image is then needs to be published to a registry so that we can pull that image and run the container.
+
+## Creating Container Registry resource to publish the image
+- Create resource, search for "container registry" and click on Microsoft based
+- Give a unique name "localregistry2020" and Create
+- You can then go to Repositories under it
+<br>
+To Publish your image to this registry, you first need to install Azure CLI tool on linux vm. 
+<br>
+Here are the steps involved:<br>
+
+1. Install the Azure CLI via the following URL<br>
+https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt
+
+2. First log into the Azure container registry<br>
+sudo az acr login --name localregistry2020 --username localregistry2020 --password
+
+3. Then tag your image<br>
+sudo docker tag webappimage appregistry300030.azurecr.io/webappimage
+
+4. Then push the image to the Azure Container registry<br>
+sudo docker push appregistry300030.azurecr.io/webappimage
+
+
+
+  
 
 
 
