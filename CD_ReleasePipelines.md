@@ -180,7 +180,8 @@ With that container instance will be in place, you can copy the IP and access th
 - Per List Content, output was in Directory: /home/vsts/work/1/a/s
 - Commit will trigger the build and deploy the image in CR
 - You can see it in localregistry2020 | Repositories | webappdocker
-- You can then test it by creating a container instance using that image
+- You can then test it by creating a container instance using that image webappdocker and opening the page in browser
+- 
 
 
 
