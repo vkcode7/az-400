@@ -149,14 +149,14 @@ Here are the steps involved:<br>
 1. Install the Azure CLI via the following URL<br>
 https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt
 
-2. First log into the Azure container registry<br>
+2. First log into the Azure container registry from CLI<br>
 sudo az acr login --name localregistry2020 --username localregistry2020 --password
 
 3. Then tag your image<br>
-sudo docker tag webappimage appregistry300030.azurecr.io/webappimage
+sudo docker tag webappimage localregistry2020.azurecr.io/webappimage
 
 4. Then push the image to the Azure Container registry<br>
-sudo docker push appregistry300030.azurecr.io/webappimage
+sudo docker push localregistry2020.azurecr.io/webappimage
 
 
 
