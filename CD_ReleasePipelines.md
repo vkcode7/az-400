@@ -255,10 +255,59 @@ This will let you create release pipeline using classic GUI based version.
 ## Kubernetes Service
 Add a resource of type "Kubernete Service" (KS), and create a Kubernetes Cluster. Give it a name "devcluster".
 - Under Node Pool, click on "Add a node pool" and configure your cluster (I named it kuberpool, also cretaed another one named agentpool)
-- Under integration select your CR localregistry2020
+- Under integration select your CR localregistry2020 and create the cluster
+  
+- Create two files app.yaml and service.yaml
+- app.yaml (deployment manifest file)
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - image: localregistry2020.azurecr.io/webappdocker:latest
+        name: myapp
+        ports:
+        - containerPort: 80
+          name: myapp
+```
+
+-service.yaml (service manifest file)
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: appservice
+spec:
+  selector:
+    app: myapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+```
+### Deploying WebAPP manually via Azure Portal
+If we want to configure our cluster manually, we need to copy paste these two deployment files in azure portal. Lets do that.<br>
+- click on "devcluster" we created
+- click "Kubernetes resources" -> Workloads -> Create [Apply with YAML]. In the text area copy paste the app.yaml, and click "Add"
+- click "Kubernetes resources" -> Services and Ingresses -> Create [Apply with YAML]. In the text area copy paste the service.yaml, and click "Add"
+- Go back to Workloads and see that "myapp" is now ready
+- Go back to "Services and Ingresses", verify that LoadBalancer is ready with an Expernal IP address.
+- Click and that IP and voila, your webapp is launched in a web browser
+
+### Deploying via Azure Release Pipelines
+- Delete the myapp entry from Workloads that we created in previous step, Delete LoadBalancer entry from Servives and Ingresses too
 - 
-
-
 
 
 
