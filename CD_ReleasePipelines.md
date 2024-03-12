@@ -343,6 +343,7 @@ Previousy we saw how we deploy using the classic build pipeline yaml file (that 
         publishLocation: 'pipeline'
   ```
 - the above change will trigger a build, wait for it to complete and click on "Build" section to see the log summary
+- note that here we are publishing the entire source but only yaml files can be published too from build to release pipeline
 - their click on "1 artifact produces" link, it will open sourcefiles, expand the "s" directory, under which you will see Manifests folder with 2 yaml files.
   
 - Go to Pipeline -> Releases -> Create a New Release pipeline, say named "Kubernetes Deployment"
@@ -357,9 +358,11 @@ Previousy we saw how we deploy using the classic build pipeline yaml file (that 
 - Now click "+" again and this time add service.yml
 - So we will have two afent jobs - "app.yml deployment" and "service.yml deployment"
 
+Once done, click on "Create release" to trigger a release to trigger Kubernetes deployment. Once it succeeds, verify from Azure by going to your Kubernetes cluster and launching the web site.
 
-  
 
+### Multi stage build.
+Earlier we creating a build and then build was used to create a docker image
 
 
 
