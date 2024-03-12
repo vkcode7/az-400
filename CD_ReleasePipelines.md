@@ -257,7 +257,7 @@ Add a resource of type "Kubernete Service" (KS), and create a Kubernetes Cluster
 - Under Node Pool, click on "Add a node pool" and configure your cluster (I named it kuberpool, also cretaed another one named agentpool)
 - Under integration select your CR localregistry2020 and create the cluster
   
-- Create two files app.yaml and service.yaml
+- Create two files app.yaml and service.yaml, save these under "Manifests" folder in the webapp-docker project
 - app.yaml (deployment manifest file)
 ```yaml
 apiVersion: apps/v1
@@ -307,7 +307,30 @@ If we want to configure our cluster manually, we need to copy paste these two de
 
 ### Deploying via Azure Release Pipelines
 - Delete the myapp entry from Workloads that we created in previous step, Delete LoadBalancer entry from Servives and Ingresses too
-- 
+- Go to Pipelines/webapp-docker/<Edit>, basically build pipeline we did for pushing the build to CR
+- We are now Editing the same to publish it to Kubernetes cluster as well
+- Before we do that create a Kubernetes service connection [Project Settings -> Pipelines -> Service Connection]
+- New Service Connection -> Kubernetes, Select Azure Subscription, Select cluster, pick Namespace and default, service conn name as "kubernetes-connection" and select Grant access to pipelines.
+- Now we have 2 yaml files in Manifests folder
+- Lets continue with Editing the azure-pipelines.yaml
+- On right side, in Tasks, look for Kubernetes, click on "Deploy to Kubernetes", in the Manifests text box, type app.yaml and hit Add
+- Edit the entry by updating app.yml and service.yml entries so it looks like this
+  ```yaml
+      - task: KubernetesManifest@1
+      inputs:
+        action: 'deploy'
+        connectionType: 'kubernetesServiceConnection'
+        kubernetesServiceConnection: 'kubernetes-connection'
+        manifests: |
+          $(Build.SourcesDirectory)/Manifests/app.yml
+          $(Build.SourcesDirectory)/Manifests/service.yml
+  ```
+- Click on Save and commit to trigger the build
+- Now once deployment is complete, you will see "myapp" in "Kubernetes resources" -> Workloads and "appservice" in "Kubernetes resources" -> Services and Ingresses
+- This confirms that deployment in Azure Cluster is complete
+- There you can see the public IP address, click on it and Voila, the website is open
+
+  
 
 
 
