@@ -358,13 +358,63 @@ Previousy we saw how we deploy using the classic build pipeline yaml file (that 
 - Now click "+" again and this time add service.yml
 - So we will have two afent jobs - "app.yml deployment" and "service.yml deployment"
 
-Once done, click on "Create release" to trigger a release to trigger Kubernetes deployment. Once it succeeds, verify from Azure by going to your Kubernetes cluster and launching the web site.
-
+Once done, click on "Create release" to trigger a release to trigger Kubernetes deployment. Once it succeeds, verify from Azure by going to your Kubernetes cluster and launching the web site.<br>
+Delete the workload and service from the Azure dashboard.
 
 ### Multi stage build.
-Earlier we creating a build and then build was used to create a docker image
 
+Earlier we creating a build and then build was used to create a docker image. 
+```docker
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+WORKDIR /app
+COPY  . .
+EXPOSE 80
+ENTRYPOINT ["dotnet", "webapp.dll"]
+```
 
+We will now replace it with following
+```docker
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /source
+
+COPY *.csproj ./
+RUN dotnet restore
+
+COPY . .
+RUN dotnet publish -c Release -o out
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+WORKDIR /app
+COPY --from=build /source/out .
+EXPOSE 80
+ENTRYPOINT ["dotnet", "webapp.dll"]
+```
+- Ensure myapp and appservice are deleted from Azure dashboard "Kubernetes resources"
+- Edit the "Kubernetes Deployment" release pipeline so that it can be triggered on new builds automatically by adding the build trigger
+- So build and publish is happening in the first half of file and in later half docker image is being built. Replace the Dockerfile with above changed and commit.
+- Cancel the build as we need one more code change
+- Since build and publish is happening via Dockerfile, we need to remove them from azure-pipelines.yml. Here is how "steps" section looks after that (very short now):
+  ```yaml
+      steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush        
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          latest
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(Pipeline.Workspace)'
+        artifact: 'sourcefiles'
+        publishLocation: 'pipeline'
+  ```
+
+  The commt will trigger a build, the build will trigger the Kubernetes Deployment via Release pipeline. Verifiy by going to Kubernetes Cluster in azure portal and launching the site. Voila.
 
   
 
