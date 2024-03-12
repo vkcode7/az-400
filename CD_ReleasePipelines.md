@@ -182,8 +182,82 @@ With that container instance will be in place, you can copy the IP and access th
 - You can see it in localregistry2020 | Repositories | webappdocker
 - You can then test it by creating a container instance using that image webappdocker and opening the page in browser
 
+Here is the yaml file:
+```yaml
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '6.x'
+
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: build
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: publish
+        publishWebProjects: True
+        zipAfterPublish: false
+        arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    
+    - pwsh: |       
+       Get-ChildItem -Path $(Build.ArtifactStagingDirectory)\*.* -Recurse -Force | Out-String -Width 180
+      errorActionPreference: continue
+      displayName: 'List content'
+      continueOnError: true
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        buildContext: '$(Build.ArtifactStagingDirectory)/s'
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          latest
+
+```
+
 ## Using Release pipeline to launch Az Container instances
-In previous step we created a docker image and uploaded to container registry.
+In the previous step we pushed an image into container registry and then use teh Azure portan to launch an instance.
+This can be done using Azure CLI via release pipeline. The docker image is already in the CR, all we have to do is launch an instance. 
+
+Go to Pipelines -> Release -> New Pipeline
+This will let you create release pipeline using classic GUI based version. 
+
+- Now we will define our Stage. Under Select a Template, choose "Empty Job", give Stage Name as "Launch container instance", click on "Save" and close the popup.
+- We can have multiple stages - Test, Prod Staging, Prod etc
+- We dont need an artifact as Docker Image is already in CR.
+- Go to Stage section and click on "1 job, 0 task" link.
+- In the new window, click on "+" next to Agent Job and search "Azure CLI" and click Add
+- Now click on this newly added item, select "Azure Subscription" and authorize.
+- Select script type as "Batch", and s cript location as inline script, and paste the az command
+- az container create -g devops-grp --name appinstance20030 --cpu 1 --memory 1  --ports 80 --ip-address Public --image localregistry2020.azurecr.io/webappdocker:latest --registry-username localregistry2020 --registry-password XeVWwKmmKD2IAS34A8B8i7E+MWJlneju
+- Rename the pipeline (container-launch) and click Save. Click on Pipeline tab.
+
+
+## Kubernetes Service
+Add a resource of type "Kubernete Service" (KS), and create a Kubernetes Cluster. Give it a name "devcluster".
+- Under Node Pool, click on "Add a node pool" and configure your cluster (I named it kuberpool, also cretaed another one named agentpool)
+- Under integration select your CR localregistry2020
+- 
+
 
 
 
