@@ -416,9 +416,105 @@ ENTRYPOINT ["dotnet", "webapp.dll"]
 
   The commt will trigger a build, the build will trigger the Kubernetes Deployment via Release pipeline. Verifiy by going to Kubernetes Cluster in azure portal and launching the site. Voila.
 
+## Running build jobs itself within a Container
+ In above cases we were running our applications as a container within image. Suppose we have a self hosted VM, in that case we may want to do multiple builds (different applications / packages) in paraller in their own containers. Because of containers we can have isolated environment for different applications.
+
+ To use container builds, lets run the following steps<br>
+ - Change Dockerfile to
+   ```yaml
+    FROM mcr.microsoft.com/dotnet/aspnet:6.0
+    COPY  . .
+    EXPOSE 80
+    ENTRYPOINT ["dotnet", "webapp.dll"]
+   ```
+- Here is updated azure-pipelines.yml
+  ```bash
+  trigger:
+  - main
   
+  resources:
+  - repo: self
+  
+  variables:
+    # Container registry service connection established during pipeline creation
+    dockerRegistryServiceConnection: '03ea52d1-30db-4903-bc0a-02b2af1df2bb'
+    imageRepository: 'webappdocker'
+    containerRegistry: 'localregistry2020.azurecr.io'
+    dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+    tag: '$(Build.BuildId)'
+  
+    # Agent VM image name
+    vmImageName: 'ubuntu-latest'
+  
+  stages:
+  - stage: Build
+    displayName: Build stage
+    jobs:
+    - job: Build
+      displayName: Build
+      pool:
+        vmImage: $(vmImageName)
+      container: mcr.microsoft.com/dotnet/sdk:6.0
+      steps:
+      - task: DotNetCoreCLI@2
+        displayName: Build
+        inputs:
+          command: build
+          projects: '**/*.csproj'
+          arguments: '--configuration $(buildConfiguration)'
+  
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: publish
+          publishWebProjects: True
+          zipAfterPublish: false
+          arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+      
+      - publish: '$(Build.ArtifactStagingDirectory)'
+        displayName: 'Publish build'
+        artifact: buildartifacts
+  
+  - stage: Deploy
+    displayName: Push stage
+    jobs:
+    - job: Deploy
+      displayName: Deploy
+      pool:
+        vmImage: $(vmImageName)
+      
+      steps:
+      - download: current
+        artifact: buildartifacts
+  
+      - task: Docker@2
+        displayName: Build and push an image to container registry
+        inputs:
+          command: buildAndPush
+          buildContext: '$(Pipeline.Workspace)/buildartifacts'
+          repository: $(imageRepository)
+          dockerfile: $(dockerfilePath)
+          containerRegistry: $(dockerRegistryServiceConnection)
+          tags: |
+            $(tag)
+            latest
+
+      - task: KubernetesManifest@1
+      inputs:
+        action: 'deploy'
+        connectionType: 'kubernetesServiceConnection'
+        kubernetesServiceConnection: 'kubernetes-connection'
+        manifests: |
+          $(Build.SourcesDirectory)/Manifests/app.yml
+          $(Build.SourcesDirectory)/Manifests/service.yml
+  ```
+- As you see it has 2 stages - Build and Deploy
+- Build is running in a container (Notice the line in yaml file "container: mcr.microsoft.com/dotnet/sdk:6.0")
+- Once build is completed, artifacts are published for Deploy stage that deploys it in CR
+- It will also register app.yml and service.yml for container instance in Kuber Cluster
 
 
+
+  
 
 
 
