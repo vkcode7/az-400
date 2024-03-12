@@ -305,7 +305,7 @@ If we want to configure our cluster manually, we need to copy paste these two de
 - Go back to "Services and Ingresses", verify that LoadBalancer is ready with an Expernal IP address.
 - Click and that IP and voila, your webapp is launched in a web browser
 
-### Deploying via Azure Release Pipelines
+### Deploying via Azure classic Build Pipelines
 - Delete the myapp entry from Workloads that we created in previous step, Delete LoadBalancer entry from Servives and Ingresses too
 - Go to Pipelines/webapp-docker/<Edit>, basically build pipeline we did for pushing the build to CR
 - We are now Editing the same to publish it to Kubernetes cluster as well
@@ -329,6 +329,34 @@ If we want to configure our cluster manually, we need to copy paste these two de
 - Now once deployment is complete, you will see "myapp" in "Kubernetes resources" -> Workloads and "appservice" in "Kubernetes resources" -> Services and Ingresses
 - This confirms that deployment in Azure Cluster is complete
 - There you can see the public IP address, click on it and Voila, the website is open
+
+### Deploying via Azure Release Pipelines
+Previousy we saw how we deploy using the classic build pipeline yaml file (that builds the code as well as deployed on Kuber cluster). In this we wiull do it via Release pipeline.<br>
+- delete the myapp and appservice from "Kubernetes resources"
+- delete the "KubernetesManifest@1" entry from yaml file we updated in previous section so that build yaml file wont dd it
+- instead add a Publish task so that the artifacts (the two yaml files - app and service) are available in "Release" pipeline from where we will publish them to cluster
+  ```yaml
+      - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(Pipeline.Workspace)'
+        artifact: 'sourcefiles'
+        publishLocation: 'pipeline'
+  ```
+- the above change will trigger a build, wait for it to complete and click on "Build" section to see the log summary
+- their click on "1 artifact produces" link, it will open sourcefiles, expand the "s" directory, under which you will see Manifests folder with 2 yaml files.
+  
+- Go to Pipeline -> Releases -> Create a New Release pipeline, say named "Kubernetes Deployment"
+- Start with Empty Job, stage named to "Deployment to Kubernetes", Save and close
+- Click on "1 job, 0 task" link and then "+" next to Agent Job
+- Search for Kubernetes and Add "Deploy to Kubernetes"
+- Change "Display name" to "app.yml deployment"
+- Configure and select Kubernetes Connection created earlier in Project Settings
+- We need to add artifacts in Manifests box, which are missing, so go back to Pipeline tab and "Add an artifact"
+- Select Build -> webapp-docker and click Add
+- Go back to Tasks tab, and in Manifests box, browse to app.yml (we can see source code now) and click on Save
+- Now click "+" again and this time add service.yml
+- So we will have two afent jobs - "app.yml deployment" and "service.yml deployment"
+
 
   
 
