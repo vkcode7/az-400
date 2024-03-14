@@ -38,16 +38,17 @@ ARM templates can be downloaded based on resoource type from<br>
 https://learn.microsoft.com/en-us/azure/templates/microsoft.web/sites?pivots=deployment-language-arm-template<br>
 You then work on them as the starting point
 
-Once temnplate is ready, here is how to deploy.
+Once template is ready, here is how to deploy.
 - Create a resource group say template-grp
 - Create a resource, search "template" and select "Template Deployment"
 - Click on "Build your own template in editor"
 - Copy your ARM template and click on "Save"
 - Select resource group template-grp and hit "Create"
-- It will create resources (app plan and app service in this case)
+- It will create resources (app service plan and app service in this case)
 
+### ARM template for Azure WebApp
 Below is the ARM template
-```arm
+```json
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
@@ -71,10 +72,10 @@ Below is the ARM template
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2022-03-01",
-            "name": "newapp994848",
+            "name": "newapp994848vk",
             "location": "[resourceGroup().location]",
             "properties":{
-                "name":"newapp994848",
+                "name":"newapp994848vk",
                 "serverFarmId":"[resourceId('Microsoft.Web/serverfarms','plan787878')]"
             },
             "dependsOn":[
@@ -85,3 +86,487 @@ Below is the ARM template
     "outputs": {}
 }
 ```
+
+### ARM template for Azure SQL DB (sqlserver400505vk/appdb)
+2 resources are needed - SQL DB Server (sqlserver400505vk) to host the DB and DB (appdb) itself.<br>
+Follow same process as before and use the template below
+```json
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "SQLLogin": {
+            "type":"string",
+            "metadata":{
+                "description":"The administrator user name"
+            }
+        },
+        "SQLPassword": {
+            "type":"secureString",
+            "metadata":{
+                "description":"The administrator password"
+            }
+
+        }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2022-02-01-preview",
+            "name": "sqlserver400505vk",
+            "location": "[resourceGroup().location]",
+            "properties":{
+                "administratorLogin": "[parameters('SQLLogin')]",
+                "administratorLoginPassword": "[parameters('SQLPassword')]"
+            }
+        },
+        {
+               "type": "Microsoft.Sql/servers/databases",
+               "apiVersion": "2022-02-01-preview",
+               "name": "[format('{0}/{1}','sqlserver400505vk','appdb')]",
+               "location": "[resourceGroup().location]",
+               "sku":{
+                "name":"Basic",
+                "tier":"Basic"
+               },
+               "properties":{},
+                "dependsOn":[
+                    "[resourceId('Microsoft.Sql/servers','sqlserver400505vk')]"
+                ]
+               
+        }
+    ],
+    "outputs": {}
+}
+```
+
+### ARM template for Azure VM
+A VM consists of many other resources such as disk, ip, network interface, network security group etc. All these needs to be defined in ARM template for VM creation.
+
+```json
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "name": "appnetwork",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "location": "North Europe",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "SubnetA",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'app-nsg')]"
+                              }
+                        }
+                    },
+                    {
+                        "name": "SubnetB",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "app-ip",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-11-01",
+            "location": "North Europe",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+                }
+            },
+            {
+                "name": "app-interface",
+                "type": "Microsoft.Network/networkInterfaces",
+                "apiVersion": "2020-11-01",
+                "location": "North Europe",            
+                "properties": {
+                    "ipConfigurations": [
+                        {
+                            "name": "ipConfig1",
+                            "properties": {
+                                "privateIPAllocationMethod": "Dynamic",
+                                "publicIPAddress": {
+                                    "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'app-ip')]"
+                                  },
+                                "subnet": {
+                                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'appnetwork', 'SubnetA')]"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "dependsOn": [
+                    "[resourceId('Microsoft.Network/publicIPAddresses', 'app-ip')]",
+                    "[resourceId('Microsoft.Network/virtualNetworks', 'appnetwork')]"
+                ]
+            },        
+        {
+            "name": "vmstore8677676",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-04-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2"
+        },
+        {
+            "name": "app-nsg",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "Allow-RDP",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "appvm",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-03-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', toLower('vmstore8677676vk'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_D2s_v3"
+                },
+                "osProfile": {
+                    "computerName": "appvm",
+                    "adminUsername": "demousr",
+                    "adminPassword": "Azure@123"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "windowsVM1OSDisk",
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    },
+                    "dataDisks": [
+                        {
+                            "name":"vm-data-disk",
+                            "diskSizeGB":16,
+                            "createOption": "Empty",
+                            "lun":0
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'app-interface')]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('vmstore8677676'))).primaryEndpoints.blob]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
+```
+
+### Nested and Linked Templates
+In Nested one can define the template in parent itself and link it to other resources.<br>
+In Link, we can define the resource templates in another file and reference it in others. That way we can resue the templates.
+
+### Incremental vs Complete mode
+In Incremental resources can be added in a resource group and existing ones in the RG wont be affected. In complete, the existing resources will be edeleted and only those that are in template will exist. nested/linked works only in incremental mode.
+
+#### Nested
+Here is a Nested Template that creates both webapp and a sql serer + DB.
+
+```json
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "SQLLogin": {
+            "type":"string",
+            "metadata":{
+                "description":"The administrator user name"
+            }
+        },
+        "SQLPassword": {
+            "type":"secureString",
+            "metadata":{
+                "description":"The administrator password"
+            }
+
+        }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2022-03-01",
+            "name": "plan787878",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name":"F1",
+                "capacity":1
+            },
+            "properties":{
+                "name":"plan787878"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2022-03-01",
+            "name": "newapp994848vk",
+            "location": "[resourceGroup().location]",
+            "properties":{
+                "name":"newapp994848vk",
+                "serverFarmId":"[resourceId('Microsoft.Web/serverfarms','plan787878')]"
+            },
+            "dependsOn":[
+                "[resourceId('Microsoft.Web/serverfarms','plan787878')]"
+            ]
+        },
+        {
+            "type":"Microsoft.Resources/deployments",
+            "apiVersion":"2021-04-01",
+            "name":"childTemplate",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2022-02-01-preview",
+            "name": "sqlserver500505vk",
+            "location": "[resourceGroup().location]",
+            "properties":{
+                "administratorLogin": "[parameters('SQLLogin')]",
+                "administratorLoginPassword": "[parameters('SQLPassword')]"
+            }
+        },
+        {
+               "type": "Microsoft.Sql/servers/databases",
+               "apiVersion": "2022-02-01-preview",
+               "name": "[format('{0}/{1}','sqlserver500505vk','appdb')]",
+               "location": "[resourceGroup().location]",
+               "sku":{
+                "name":"Basic",
+                "tier":"Basic"
+               },
+               "properties":{},
+                "dependsOn":[
+                    "[resourceId('Microsoft.Sql/servers','sqlserver500505vk')]"
+                ]
+               
+        }
+    ]
+    
+                }
+            }
+
+        }
+    ],
+    "outputs": {}
+}
+```
+
+#### Linked
+We will create two separate ARM template files - sqldatabase.json and sqldatabase-parameters.json and link them in main file main.json. The parameters json has sql user and pwd for the sql database.
+- We need to create a "Storage Account" resource to store our templates in azure. Lets give it name "storage2024vk".<br>
+- Click on new Storage Account. Go to Data Storage -> Containers and create a container named "templates".
+- Upload sqldatabase.json in templates and note down the URL and update in main.json (https://storage2024vk.blob.core.windows.net/templates/sqldatabase.json)
+- Upload sqldatabase-parameters.json and note down the URL
+- Update the URLs in main.json
+- Create the resource using template as in previous sections, this time just providing main.json as the template body.
+
+main.json
+```json
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {        
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "name": "plan787878",
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2020-12-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "F1",
+                "capacity": 1
+            },
+            "properties": {
+                "name": "plan787878"
+            }
+        },
+        {
+            "name": "newapp99484811",
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2020-12-01",
+            "location": "[resourceGroup().location]",            
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', 'plan787878')]"
+            ],
+            "properties": {
+                "name": "newapp99484811",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', 'plan787878')]"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "LinkedTemplate",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://storage2024vk.blob.core.windows.net/templates/sqldatabase.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "https://storage2024vk.blob.core.windows.net/templates/sqldatabase-parameters.json",
+                    "contentVersion": "1.0.0.0"
+                }
+    }}
+    ],
+    "outputs": {}
+}
+```
+
+sqldatabase.json
+```json
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "SQLLogin": {
+            "type": "string",
+            "metadata": {
+              "description": "The administrator user name for the Azure SQL Server"
+            }
+          },
+          "SQLPassword": {
+            "type": "secureString",
+            "metadata": {
+              "description": "The administrator password for the Azure SQL Server"
+            }
+          }
+    },
+    "functions": [],
+    "variables": { },
+    "resources": [
+        {
+            "name": "sqlserver8005051",
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2021-08-01-preview",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "administratorLogin": "[parameters('SQLLogin')]",
+                "administratorLoginPassword": "[parameters('SQLPassword')]"
+              }
+        },
+        {
+            "name": "[format('{0}/{1}', 'sqlserver8005051', 'appdb')]",
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2021-08-01-preview",
+            "location": "[resourceGroup().location]",            
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', 'sqlserver8005051')]"
+            ],
+            "sku": {
+                "name": "Basic",
+                "tier": "Basic"
+              },
+              "properties": {}
+        }
+    ],
+    "outputs": {}
+}
+```
+
+sqldatabase-parameters.json
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "SQLLogin": {
+      "value": "sqlusr"
+    },
+    "SQLPassword": {
+      "value": "Azure@123"
+    }
+  }
+}
+```
+
+## Using ARM templates in Release pipelines.
+ARM templates can be used to create resources via Release pipeline and then used for deployment in subsequent steps.
+
+Lets add main.json too in the storage account.
+
+- In the Release pipeline where we create Agent Jobs, add an agent job of type "ARM template deployment"
+- Make it the first task as we want to use the resources created via ARM in our release pipeline.
+- In the config screen, provide the URL of main.json
+- You can  also pass on the values from your ARM template such as VM name, SQL Server name etc in subsequent Release pipeline tasks
+
+Note: If you run your pipeline again, it will see that resources are already available and wont recreate them.
+
+## Cleanup
+Suppose we created the resources using ARM templates using Release pipeline. Once testing is done and we move to next stage (say prod staging), we can add an stage after Testing stage to do resource cleanup. For that simply add Agent Job of type "Azure CLI" and use Power Shell inline script for cleanup. Here is an example script.
+
+```bash
+az resource delete -g template-grp -n "sqlserver700505/appdb" --resource-type "Microsoft.Sql/servers/databases"
+az resource delete -g template-grp -n "sqlserver700505" --resource-type "Microsoft.Sql/servers"
+az resource delete -g template-grp -n newapp994848 --resource-type "Microsoft.Web/sites"
+az resource delete -g template-grp -n plan787878 --resource-type "Microsoft.Web/serverfarms"
+```
+
+
+  
