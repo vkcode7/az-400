@@ -754,8 +754,130 @@ az sql db create --resource-group template-grp --server sqlserver420505 --name a
 ## Using CLI to create resources in Release Pipeline
 Instead of using ARM Deployment task in pipeline, use "PowerShell script" task and copy paste the above CLI commands inline there. That will create the resources using CLI via Release pipeline.
 
-# TERRAFORM
-This is similar to ARM templates but open source and can be used on other cloud providers as well, code is human readable too.
+# TERRAFORM (By HashiCorp)
+This is similar to ARM templates but open source and can be used on other cloud providers as well, code is human readable too. The extesnion of file is .tf, main.tf.
+
+How to work with TerraForm (TF):
+- download terraform tool which is a simple exe in a folder (https://developer.hashicorp.com/terraform/install)
+- install Visual Studio extensions - Azure Terraform and Hashicorp Terraform
+
+Below is the basic structure needed. The required_providers tells which provider? Google, Azure, AWS etc... and then we have block of credentials.
+```
+terraform {
+  required_providers {
+    azurerm={
+        source="hashicorp/azurerm"
+        version="3.17.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  subscription_id = "f23a81dd-b03a-4625-a27d-11e4f12844f5"
+  tenant_id = "1a738633-1476-4d96-828c-fa5727a31ca7"
+  client_id = "32db6859-28ab-4d09-8fc1-91678060f9b7"
+  client_secret = "Qth8Q~HI6bAeeQ0p_1-URbbRSIsjrqHQbAnW~arj"
+  features {    
+  }
+}
+```
+To fill the credentials, go to Azure Portal -> Microsoft Entra ID. There click on Manage -> App Registrations. Click on "New Registration", fill application name as "terraform" and hit "Register". It will show you the info that you can use to fill the above. You can also generate the client_secret there. For subscription_id, go to your subscriptions and copy the id from there. This will help TF to connect to your azure account. Next thing you need to do is go to your subscriptions. Click on subscription -> Access Control (IAM) -> Add -> Add role assignment. Select "Contribute" access, click on Members -> Select members and look for "terraform", select it and do a Review & assign of the role.
+
+The next step is to define resource blocks. Here is how a complete tf file looks like:
+```
+terraform {
+  required_providers {
+    azurerm={
+        source="hashicorp/azurerm"
+        version="3.17.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  subscription_id = "6912d7a0-bc28-459a-9407-33bbba641c07"
+  tenant_id = "70c0f6d9-7f3b-4425-a6b6-09b47643ec58"
+  client_id = "3feda701-6a3d-4915-8d26-343827060a8e"
+  client_secret = "kKH8Q~54-LwKs2lYfNj6ECD_VmAt-cKSllRG4bfE"
+  features {    
+  }
+}
+
+resource "azurerm_service_plan" "plan787878" {
+  name                = "plan787878"
+  resource_group_name = "template-grp"
+  location            = "North Europe"
+  os_type             = "Windows"
+  sku_name            = "F1"
+}
+
+resource "azurerm_windows_web_app" "newapp1002030" {
+  name                = "newapp1002030"
+  resource_group_name = "template-grp"
+  location            = "North Europe"
+  service_plan_id     = azurerm_service_plan.plan787878.id
+
+  site_config {
+    always_on = false
+    application_stack{
+        current_stack="dotnet"
+        dotnet_version="v6.0"
+    }
+  }
+
+  depends_on = [
+    azurerm_service_plan.plan787878
+  ]
+}
+
+resource "azurerm_mssql_server" "sqlserver468985656" {
+  name                         = "sqlserver468985656"
+  resource_group_name          = "template-grp"
+  location                     = "North Europe"
+  version                      = "12.0"
+  administrator_login          = "sqlusr"
+  administrator_login_password = "Azure@123"  
+}
+
+resource "azurerm_mssql_database" "appdb" {
+  name           = "appdb"
+  server_id      = azurerm_mssql_server.sqlserver468985656.id
+  collation      = "SQL_Latin1_General_CP1_CI_AS"
+  license_type   = "LicenseIncluded"
+  max_size_gb    = 2  
+  sku_name       = "Basic"
+  depends_on = [
+    azurerm_mssql_server.sqlserver468985656
+  ]
+}
+```
+
+Step 1: To deploy the resources go to dir where terraform exe is installed on your machine in console and do a "terraform init". This will download the necessary plugin etc.<br>
+Step 2: create a plan using [terraform plan -out main.tfplan]<br>
+Step 3: Apply the plan generated in step 2 and this will create the resources in Azure - [terraform apply "main.tfplan"]<br>
+
+If you do a "terraform destroy", it will delete the resources created previously.
+
+## Terraform in Release pipeline
+To do that add main.tf to your codebase say under Templates folder. Pipeline can then access this artifact and run it.<br>
+- In Release pipeline -> Agent Job... search for Terraform and install the extension if needed.
+- Add "Install Terraform latest" from the search results as agent job so it can install the terraform tools
+- Add "Terraform" task as next one for terraform init" (step 1)
+- In the config screen, fill display as "Terraform: init", "azurerm" as Provider, "init" in the Command, in the Config directory select the "templates" artifact folder.
+- This will also need a "Storage Account" for terraform to store the state, create one and select it in config screen
+- Fill "terraform.tfstate" as the Key and done
+- Add one more "Terraform" task for terraform plan" (step 2)
+- Fill "plan" as command and rest as in previous step.
+- Add one more "Terraform" task for terraform apply" (step 3)
+- Choose "apply" as command. In the Additional command arguments, fill "-auto-approve" and done
+
+Run the pipeline and it will create the resources and use them in subsequent steps.
+
+
+
+
+
+
 
 
 
