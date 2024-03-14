@@ -555,10 +555,11 @@ Lets add main.json too in the storage account.
 - Make it the first task as we want to use the resources created via ARM in our release pipeline.
 - In the config screen, provide the URL of main.json
 - You can  also pass on the values from your ARM template such as VM name, SQL Server name etc in subsequent Release pipeline tasks
+- Instead of storing ARM template in Azure Storage Account and using URL, it can be stored with code base and artifact can be used in pipeline
 
 Note: If you run your pipeline again, it will see that resources are already available and wont recreate them.
 
-## Cleanup
+## Cleanup of Resources created via Release pipelines after we are done
 Suppose we created the resources using ARM templates using Release pipeline. Once testing is done and we move to next stage (say prod staging), we can add an stage after Testing stage to do resource cleanup. For that simply add Agent Job of type "Azure CLI" and use Power Shell inline script for cleanup. Here is an example script.
 
 ```bash
