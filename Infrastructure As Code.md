@@ -1175,6 +1175,205 @@ stages:
           ]
 ```
 
+# Azure Automation DSC (Desired Service Configuration) [https://learn.microsoft.com/en-us/powershell/dsc/reference/resources/windows/fileresource?view=dsc-1.1]
+Ensures that a VM has required software/state such as IIS on Windows VM that will be hosting web applications.
+- You can do so by creating a resource of type "Automation"
+- Suppose we create a new Windows 2019 DataCenter server VM (newly created wont have IIS installed)
+- We can do so via a PS script config file. Here is a sample script.ps1
+  ```
+  configuration NewConfig
+  {
+      Node localhost
+      {
+          WindowsFeature IIS
+          {
+              Ensure               = 'Present'
+              Name                 = 'Web-Server'
+              IncludeAllSubFeature = $true
+          }
+      }
+  }
+  ```
+- This basically is telling that the desired role of "Web-Server" should always be present.
+- Now go back to "Automation" resource we created, click on "State configuration (DSC)"
+- Go to Configurations Tab and click on "Add" and upload the config file script.ps1. Name it as "NewConfig" as in ps1 file.
+- After upload, the next step is to compile it gy clicking on "Compile".
+- You can then see it in "Compiled configurations". Click on that.
+- There you can add your nodes or machines to it.
+- Add (Onboard) the Windows 2019 VM we created previously.
+- You can specify refresh frequency (say 30 mins). The DSC will then check it every 30 mins.
+- This will ensure that IIS is always present, if missing, it will be installed.
+- If you go to VM itself, under Extensions + applications, you can see the DSCX Powershell entry there.
+- As a test, you can login to machine and remove IIS forcefully
+- After some time DSCX will again install IIS on that
 
+# Custom Script Extension
+You can create a custom script, that can be used to download and run on Azure VMs. These can be used to automate the post deployment tasks as well.
 
+# VM Scale Sets
+VMs can automatically scale up or down based on the load. For the exercise, you will need to create a Load Balancer, then create a VM scale set with initial capacity of 2. Here is the ARM template to deploy the VM scale set.
 
+```
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/loadBalancers",
+            "apiVersion": "2021-05-01",
+            "name": "app-balancer",
+            "location": "[resourceGroup().location]",
+            "properties": {
+              "frontendIPConfigurations": [
+                {
+                  "name": "LoadBalancerFrontEnd",
+                  "properties": {
+                    "publicIPAddress": {
+                      "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'app-ip')]"
+                    }
+                  }
+                }
+              ],
+              "backendAddressPools": [
+                {
+                  "name": "app-pool"
+                }
+              ],
+              "loadBalancingRules": [
+                {
+                  "name": "RuleA",
+                  "properties": {
+                    "frontendIPConfiguration": {
+                      "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', 'app-balancer', 'loadBalancerFrontEnd')]"
+                    },
+                    "backendAddressPool": {
+                      "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'app-balancer', 'app-pool')]"
+                    },
+                    "protocol": "Tcp",
+                    "frontendPort": 80,
+                    "backendPort": 80,
+                    "enableFloatingIP": false,
+                    "idleTimeoutInMinutes": 5,
+                    "probe": {
+                      "id": "[resourceId('Microsoft.Network/loadBalancers/probes', 'app-balancer', 'tcpProbe')]"
+                    }
+                  }
+                }
+              ],
+              "probes": [
+                {
+                  "name": "tcpProbe",
+                  "properties": {
+                    "protocol": "Tcp",
+                    "port": 80,
+                    "intervalInSeconds": 5,
+                    "numberOfProbes": 2
+                  }
+                }
+              ]},
+            "dependsOn": [
+              "[resourceId('Microsoft.Network/publicIPAddresses', 'app-ip')]"
+            ]
+          },
+          {
+            "type": "Microsoft.Compute/virtualMachineScaleSets",
+            "apiVersion": "2021-11-01",
+            "name": "app-set",
+            "location": "[resourceGroup().location]",
+            "sku": {
+              "name": "Standard_D2s_v3",
+              "tier": "Standard",
+              "capacity": 2
+            },
+            "properties": {
+              "overprovision": true,
+              "upgradePolicy": {
+                "mode": "Automatic"
+              },
+              "singlePlacementGroup": true,
+              "platformFaultDomainCount": 3,
+              "virtualMachineProfile": {
+                "storageProfile": {
+                  "osDisk": {
+                    "caching": "ReadWrite",
+                    "createOption": "FromImage"
+                  },
+                  "imageReference": {
+                    "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-Datacenter",
+                        "version": "latest"                    
+                  }
+                },
+                "osProfile": {
+                  "computerNamePrefix": "appvm",
+                  "adminUsername": "demousr",
+                  "adminPassword": "Azure@123"
+                },
+                "networkProfile": {
+                  "networkInterfaceConfigurations": [
+                    {
+                      "name": "app-nic",
+                      "properties": {
+                        "primary": true,
+                        "ipConfigurations": [
+                          {
+                            "name": "ipConfig",
+                            "properties": {
+                              "subnet": {
+                                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'app-network')).subnets[0].id]"
+                              },
+                              "loadBalancerBackendAddressPools": [
+                                {
+                                  "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'app-balancer', 'app-pool')]"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }}},
+                "dependsOn": [
+                    "[resourceId('Microsoft.Network/virtualNetworks', 'app-network')]",
+                    "[resourceId('Microsoft.Network/loadBalancers', 'app-balancer')]"
+                  ]
+                },
+                {
+                    "type": "Microsoft.Network/virtualNetworks",
+                    "apiVersion": "2021-05-01",
+                    "name": "app-network",
+                    "location": "[resourceGroup().location]",
+                    "properties": {
+                      "addressSpace": {
+                        "addressPrefixes": [
+                          "10.0.0.0/16"
+                        ]
+                      },
+                      "subnets": [
+                        {
+                          "name": "SubnetA",
+                          "properties": {
+                            "addressPrefix": "10.0.0.0/24"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "Microsoft.Network/publicIPAddresses",
+                    "apiVersion": "2021-05-01",
+                    "name": "app-ip",
+                    "location": "[resourceGroup().location]",
+                    "properties": {
+                      "publicIPAllocationMethod": "Static",
+                      "dnsSettings": {
+                        "domainNameLabel": "app-set"
+                      }
+                    }
+                  }
+    ]
+}
+```
