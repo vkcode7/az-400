@@ -737,7 +737,25 @@ Write-Host "##vso[task.setvariable variable=sqlserverfqdn;]$value2"
 
 After the ARM Deployment task, add another task of type "PowerShell Script", this will run our PS script. Specify the path from artifacts and in the Arguments text box, type: -ARMValues '$(resourcesdeployed)'. What we are doing is taking the output of ARM deployment and processing it via PS script, the PS Script is then setting the variable values in Release pipeline for use by subsequent tasks in the pipeline such as DB creation or running SQL scripts. In subsequent tasks you can simply use $(webappname) and $(sqlserverfqdn) to access the dynamic values. You can also add a "Bash shell" task and output the variable names from that script using echo command.
 
+## Creating resources using Az CLI
+In Azure portal, on top bar there is an icon for Azure Shell, clicking that opens Power Shell in lower half of  browser and you can use that to run CLI commands.<br>
+Following CLI commands can be run there to create the resources we created earlier using ARM template.
 
+```bash
+az appservice plan create -g template-grp -n plan787878 --sku F1 --l "North Europe"
+az webapp create -g template-grp -p plan787878 -n newapp1094848 --runtime "dotnet:6"
+
+az webapp list-runtimes
+
+az sql server create --name sqlserver420505vkcli --resource-group template-grp --location "North Europe" --admin-user sqlusr --admin-password Azure@123
+az sql db create --resource-group template-grp --server sqlserver420505 --name appdb --service-objective "Basic"
+```
+
+## Using CLI to create resources in Release Pipeline
+Instead of using ARM Deployment task in pipeline, use "PowerShell script" task and copy paste the above CLI commands inline there. That will create the resources using CLI via Release pipeline.
+
+# TERRAFORM
+This is similar to ARM templates but open source and can be used on other cloud providers as well, code is human readable too.
 
 
 
