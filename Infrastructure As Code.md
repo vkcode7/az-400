@@ -711,8 +711,35 @@ Once our templates are ready, lets see how to use these outputs in Release pipel
 
 In Release Pipeline, next to Task, there is a tab named "Variables", we will use that. In our main.json above we are exposing 2 output variables webappname and sqlserverfqdn. We need to add these in Variables tab and next to them check mark the "Settable are Release time". These values will be populated using a PS script.
 
-Now go back to task "ARM Template Deployment" and in the bottm part of config screen, you will see "Deployment Outputs" section, give it a name say "resourcesdeployed". This will have the entire "outputs" json which we will process using following PS script and set the variable names we created previously.
+Now go back to task "ARM Template Deployment" and in the bottm part of config screen, you will see "Deployment Outputs" section, give it a name say "resourcesdeployed". This will have the entire "outputs" json which we will process using following PS script and set the variable names we created previously. This file could be added to codebase under Templates folder.
+
+script.ps1
+```bash
+param (
+    [Parameter(Mandatory=$true)][string]$ARMValues
+)
+
+Write-Host "Starting the script"
+
+$outputs = $ARMValues | convertfrom-json
+
+foreach ($output in $outputs) {
+$value1=$output.'webappname'.value
+$value2=$output.'sqlserverfqdn'.value
+
+Write-Host $value1
+Write-Host $value2
+
+Write-Host "##vso[task.setvariable variable=webappname;]$value1"
+Write-Host "##vso[task.setvariable variable=sqlserverfqdn;]$value2"
+}
+```
+
+After the ARM Deployment task, add another task of type "PowerShell Script", this will run our PS script. Specify the path from artifacts and in the Arguments text box, type: -ARMValues '$(resourcesdeployed)'. What we are doing is taking the output of ARM deployment and processing it via PS script, the PS Script is then setting the variable values in Release pipeline for use by subsequent tasks in the pipeline such as DB creation or running SQL scripts. In subsequent tasks you can simply use $(webappname) and $(sqlserverfqdn) to access the dynamic values. You can also add a "Bash shell" task and output the variable names from that script using echo command.
 
 
 
-  
+
+
+
+
