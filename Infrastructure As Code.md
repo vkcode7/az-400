@@ -555,7 +555,13 @@ Lets add main.json too in the storage account.
 - Make it the first task as we want to use the resources created via ARM in our release pipeline.
 - In the config screen, provide the URL of main.json
 - You can  also pass on the values from your ARM template such as VM name, SQL Server name etc in subsequent Release pipeline tasks
-- Instead of storing ARM template in Azure Storage Account and using URL, it can be stored with code base and artifact can be used in pipeline
+- Instead of storing ARM template in Azure Storage Account and using URL, it can be stored with code base (in Templates folder) and artifact can be used in pipeline. Update azure-pipeline.yml as
+  ```yml
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.SourcesDirectory)/webapp/Templates' 
+    artifactName: 'template-artifact'
+  ```
 
 Note: If you run your pipeline again, it will see that resources are already available and wont recreate them.
 
@@ -568,6 +574,145 @@ az resource delete -g template-grp -n "sqlserver700505" --resource-type "Microso
 az resource delete -g template-grp -n newapp994848 --resource-type "Microsoft.Web/sites"
 az resource delete -g template-grp -n plan787878 --resource-type "Microsoft.Web/serverfarms"
 ```
+
+## Dynamic Resource creation (resources with dynamic names)
+So far we have given the resource names such as SQL Server name etc in the ARM template itself. Now we will see how to do that dynamically. For example, we want to dynamically generate a SQL Server name and then use it in subsequent steps in Release pipeline.<br>
+This is done in ARM itself using "variables" as in below. Here we defined a new variable named sql-server-name and used in ARM template. Also notice the "output" section, it is used to output the variable name and that output is used by other action tasks in Release pipelines. For ex, using the SQL server name and then creating a DB in it or running q SQL script.
+sqldatabase.json
+```json
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "SQLLogin": {
+            "type":"string",
+            "metadata":{
+                "description":"The administrator user name"
+            }
+        },
+        "SQLPassword": {
+            "type":"secureString",
+            "metadata":{
+                "description":"The administrator password"
+            }
+
+        }
+    },
+    "functions": [],
+    "variables": {
+        "sql-server-name":"[concat('server',uniqueString(resourceGroup().id))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2022-02-01-preview",
+            "name": "[variables('sql-server-name')]",
+            "location": "[resourceGroup().location]",
+            "properties":{
+                "administratorLogin": "[parameters('SQLLogin')]",
+                "administratorLoginPassword": "[parameters('SQLPassword')]"
+            }
+        },
+        {
+               "type": "Microsoft.Sql/servers/databases",
+               "apiVersion": "2022-02-01-preview",
+               "name": "[format('{0}/{1}',variables('sql-server-name'),'appdb')]",
+               "location": "[resourceGroup().location]",
+               "sku":{
+                "name":"Basic",
+                "tier":"Basic"
+               },
+               "properties":{},
+                "dependsOn":[
+                    "[resourceId('Microsoft.Sql/servers',variables('sql-server-name'))]"
+                ]
+               
+        }
+    ],
+    "outputs": {
+        "sqlserverfqdn": {
+            "type": "string",
+            "value":"[reference(variables('sql-server-name')).fullyQualifiedDomainName]"
+        }
+    }
+}
+```
+
+main.json
+```json
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "functions": [],
+    "variables": {
+        "web-app-name":"[concat('webapp',uniqueString(resourceGroup().id))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2022-03-01",
+            "name": "plan787878",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name":"F1",
+                "capacity":1
+            },
+            "properties":{
+                "name":"plan787878"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2022-03-01",
+            "name": "[variables('web-app-name')]",
+            "location": "[resourceGroup().location]",
+            "properties":{
+                "name":"[variables('web-app-name')]",
+                "serverFarmId":"[resourceId('Microsoft.Web/serverfarms','plan787878')]"
+            },
+            "dependsOn":[
+                "[resourceId('Microsoft.Web/serverfarms','plan787878')]"
+            ]
+        },
+        {
+            "type":"Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name":"LinkedTemplate",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://templatestore465656.blob.core.windows.net/templates/sqldatabase.json",
+                    "contentVersion":"1.0.0.0"
+                },
+                "parametersLink": {
+                    "uri": "https://templatestore465656.blob.core.windows.net/templates/sqldatabase-parameters.json",
+                    "contentVersion":"1.0.0.0"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "webappname": {
+            "type": "string",
+            "value":"[variables('web-app-name')]"
+        },
+        "sqlserverfqdn": {
+            "type": "string",
+            "value":"[reference('LinkedTemplate').outputs.sqlserverfqdn.value]"
+        }
+    }
+}
+```
+
+You can then test these templates by directly deploying them in azure and see if everything works and Deployment -> Outputs has the output data values.
+
+Once our templates are ready, lets see how to use these outputs in Release pipeline:
+
+In Release Pipeline, next to Task, there is a tab named "Variables", we will use that. In our main.json above we are exposing 2 output variables webappname and sqlserverfqdn. We need to add these in Variables tab and next to them check mark the "Settable are Release time". These values will be populated using a PS script.
+
+Now go back to task "ARM Template Deployment" and in the bottm part of config screen, you will see "Deployment Outputs" section, give it a name say "resourcesdeployed". This will have the entire "outputs" json which we will process using following PS script and set the variable names we created previously.
+
 
 
   
