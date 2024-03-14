@@ -103,6 +103,7 @@ $LoadBalancer | Set-AzLoadBalancer
 ```
 
 ## Package Management
+### How to Publish
 Azure Artifacts - developers can publish their packages and consumes other.
 Lets say we have a .NET library "CoreServices" that priovides Core functionality that other projects in org can use. To store this library we can use Azure Artifacts on DevOps page for the project in DevOps.
 - First thing we have to do is click on "Create Feed" and creare a feed with a name, say CoreServices in this case
@@ -112,14 +113,18 @@ Lets say we have a .NET library "CoreServices" that priovides Core functionality
 - Next add nuget.config as per the instructions in "Connect to feed"
   ```xml
   <?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <packageSources>
-    <clear />
-    <add key="CoreServices" value="https://pkgs.dev.azure.com/vkcode7/_packaging/CoreServices/nuget/v3/index.json" />
-  </packageSources>
-</configuration>
-```
+  <configuration>
+    <packageSources>
+      <clear />
+      <add key="CoreServices" value="https://pkgs.dev.azure.com/vkcode7/_packaging/CoreServices/nuget/v3/index.json" />
+    </packageSources>
+  </configuration>
+  ```
 - Next build the package by opening the cmd, and run the cmd: ./nuget.exe pack ./CoreServices.csproj
 - Now publish it using: nuget.exe push -Source "CoreServices" -ApiKey Core CoreServices.1.0.0.nupkg
 - We can now go back to Artifacts page and see that our package is published and available
+
+### How to consume it
+From the Artifacts, go to Connect to Feed, and copy teh URL for VS and then add the package source in VS settings. It will then show CoreServices package that you can add to project.
+
 
