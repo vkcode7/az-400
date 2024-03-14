@@ -123,8 +123,86 @@ Lets say we have a .NET library "CoreServices" that priovides Core functionality
 - Next build the package by opening the cmd, and run the cmd: ./nuget.exe pack ./CoreServices.csproj
 - Now publish it using: nuget.exe push -Source "CoreServices" -ApiKey Core CoreServices.1.0.0.nupkg
 - We can now go back to Artifacts page and see that our package is published and available
+- We can also publish the package from pipelines yaml itself
+```yaml
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.x'
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: NuGetCommand@2
+  inputs:
+    command: pack
+    packagesToPack: '**/*.csproj'
+    versioningScheme: byEnvVar 
+    versionEnvVar: Build.BuildId
+    packDestination: '$(Build.ArtifactStagingDirectory)'
+
+- task: NuGetAuthenticate@0
+  displayName: 'NuGet Authenticate'
+- task: NuGetCommand@2
+  displayName: 'NuGet push'
+  inputs:
+    command: push
+    packagesToPush: '$(Build.ArtifactStagingDirectory)\*.nupkg'
+    publishVstsFeed: 'AgileProject/CoreServices'
+    allowPackageConflicts: true
+```
 
 ### How to consume it
 From the Artifacts, go to Connect to Feed, and copy teh URL for VS and then add the package source in VS settings. It will then show CoreServices package that you can add to project.
+
+### Upstream sources
+We can also publish the projects from upstream sources such as nuget to Artifactory and later install from there.
+
+## Azure App Config
+Under each resource there is a configuration setting where you can define key/value pair such as connection strings. Instead we can do that at app level by creating a App Config resource:
+
+Azure App Configuration allows developers to store, retrieve, and manage access to application configuration all in one place. It is easy to set up and simple to use from any application. It gives developers the ability to modify an application's behavior on demand without having to redeploy the application, while meeting rigorous performance,security, and compliance requirements. Beyond configuration, it also supports feature flagging capabilities to customize feature rollouts and limit new feature access to target groups.
+
+App Configuration provides:
+
+A fully managed service that can be set up in minutes.
+Flexible key representations and mappings.
+Versioning with labels.
+Point-in-time restores of configuration up to 30 days later.
+Native integration with popular frameworks, including .NET, Java, Python, and Javascript.
+Enhanced security through Azure-managed identities.
+Complete data encryption at rest or in transit.
+CI/CD integration with Azure Pipelines and Github Actions.
+Key Vault Reference support for direct access to secrets and certificates.
+Feature management with filters to limit the time or target group availability of each flag.
+
+# Test Plan
+Azure DevOps has Test Plans functionality but is a paid one. You can create a Test Plan and under Test Plan can create Test Suites that can be linked to User Stories. The Test Suites can then have Test Cases under it to test the user story. This was Test Plan can be linked to Azure Boards. Test suites can be assigned to testers who can run them, and reports can be generated.
 
 
