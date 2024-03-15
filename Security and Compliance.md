@@ -220,7 +220,7 @@ This is where you can store logs from VMs, on prem resources, database etc. Adva
 ## Service Map
 Can show the services running on a machine and which ports are open and where the connections connecting to. Aslo who are the clients connected to it (which IP and ports).
 
-## Applications Insights
+## Applications Insights - AI
 Provides monitioring of web resources, their performances etc. You can enable it while creating a Web App resource and then add it to your web app project in .NET. VS automatically embeds it with few clicks. You can then see the Live Metrics of your app too under application insights.
 
 Follow language-specific guidelines to enable Live Metrics:<br>
@@ -232,9 +232,12 @@ https://learn.microsoft.com/en-us/azure/azure-monitor/app/live-stream?tabs=dotne
 - Java: Live Metrics is enabled by default.
 - Node.js
 
+You can also confighre Availability in AI, so that your website can be automatically accesses every N mins intervals and availability metrics can be made available. It also has "Smart detection" feature where you could be alerted on slwo response time, load, memory etc.
 
+## Container instances Probes
+https://learn.microsoft.com/en-us/azure/container-instances/container-instances-liveness-probe
 
-
+We can configure probes on container instances using YAML files. Liveness and readiness probes.
 
 
 
